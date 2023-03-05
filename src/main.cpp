@@ -2,6 +2,7 @@
 #include "Writer.h"
 #include "Buffer.h"
 #include "Rasterizer.h"
+#include "Vec3.h"
 
 int main()
 {
@@ -20,6 +21,16 @@ int main()
     Vec3<float>* z = new Vec3<float>(-1.0f, -1.0f, 0.0f);
 
     Triangle* triangle = new Triangle(*x, *y, *z);
+
+    *x += *y;
+
+    std::cout << x->x << " " << x->y << " " << x->z << '\n';
+
+    *x -= *y;
+
+    *y += *x;
+
+    std::cout << y->x << " " << y->y << " " << y->z << '\n';
 
     rasterizer->drawTriangle(*triangle, 0xff012345);
 
