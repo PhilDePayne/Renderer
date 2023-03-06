@@ -56,6 +56,8 @@ void FGK() {
 
     Plane P = Plane(Vec3<float>(0, 0.5f, 0.5f), Vec3<float>(0, 0, 0));
 
+    std::cout << P.intersection(R2);
+
     delete x;
     delete y;
     delete a;

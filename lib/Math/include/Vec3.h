@@ -19,6 +19,8 @@ public:
 	void operator+=(const Vec3& v);
 	void operator-=(const Vec3& v);
 	Vec3 operator-(const Vec3& v);
+	Vec3 operator+(const Vec3& v);
+	Vec3 operator*(const float& v);
 
 	void divide(const float& x);
 	void multiply(const float& x);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vec3.h"
+#include "Ray.h"
 
 class Plane {
 
@@ -19,4 +20,6 @@ public:
 
 	Vec3<float> getP() const;
 	void setP(Vec3<float> p);
+
+	bool intersection(Ray ray);
 };
