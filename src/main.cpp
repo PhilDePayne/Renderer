@@ -5,6 +5,7 @@
 #include "Vec3.h"
 #include "Sphere.h"
 #include "Ray.h"
+#include "Plane.h"
 
 void FGK() {
 
@@ -52,6 +53,8 @@ void FGK() {
     Ray R3 = Ray(Vec3<float>(0, 0, 0), Vec3<float>(1, 0, 0));
 
     std::cout << S.hit(R3, 0, 20) << '\n';
+
+    Plane P = Plane(Vec3<float>(0, 0.5f, 0.5f), Vec3<float>(0, 0, 0));
 
     delete x;
     delete y;
