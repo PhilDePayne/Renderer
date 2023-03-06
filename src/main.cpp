@@ -47,6 +47,12 @@ void FGK() {
 
     Ray R2 = Ray(r1Origin, Vec3<float>(0, 1, 0));
 
+    std::cout << S.hit(R1, 0, 10) << " " << S.hit(R2, 0, 11) << '\n';
+
+    Ray R3 = Ray(Vec3<float>(0, 0, 0), Vec3<float>(1, 0, 0));
+
+    std::cout << S.hit(R3, 0, 20) << '\n';
+
     delete x;
     delete y;
     delete a;

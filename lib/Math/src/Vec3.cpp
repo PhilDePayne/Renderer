@@ -17,6 +17,12 @@ void Vec3<float>::operator-=(const Vec3<float>& v) {
 
 }
 
+Vec3<float> Vec3<float>::operator-(const Vec3<float>& v) {
+
+	return Vec3<float>(x - v.x, y - v.y, z - v.z);
+
+}
+
 void Vec3<float>::multiply(const float& x) {
 
 	this->x *= x;

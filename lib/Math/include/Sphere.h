@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Vec3.h"
+#include "Ray.h"
 
 class Sphere {
 
@@ -20,5 +22,7 @@ public:
 
 	float getRadius() const;
 	void setRadius(float r);
+
+	bool hit(Ray ray, float t_min, float t_max) const;
 
 };
