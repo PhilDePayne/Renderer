@@ -32,6 +32,10 @@ int main()
 
     std::cout << y->x << " " << y->y << " " << y->z << '\n';
 
+    *y -= *x;
+
+    std::cout << x->angleBetween(*y) << '\n';
+
     rasterizer->drawTriangle(*triangle, 0xff012345);
 
     writer->write(TGA, width, height, buffer->color);

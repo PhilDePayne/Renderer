@@ -22,11 +22,14 @@ public:
 	void divide(const float& x);
 	void multiply(const float& x);
 
-	float length();
+	float length() const;
 
 	void normalize();
 
 	float dot(const Vec3& v);
 
 	Vec3<float> cross(const Vec3& v);
+
+	//returns the angle between this vector and v in radians
+	float angleBetween(const Vec3& v);
 };

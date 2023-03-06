@@ -40,7 +40,7 @@ void Vec3<float>::divide(const float& x) {
 
 }
 
-float Vec3<float>::length() {
+float Vec3<float>::length() const{
 
 	return (float)sqrt(pow(this->x, 2) +
 					   pow(this->y, 2) +
@@ -79,5 +79,11 @@ Vec3<float> Vec3<float>::cross(const Vec3<float>& v) {
 	return Vec3<float>(this->y * v.z - this->z * v.y,
 		this->z * v.x - this->x * v.z,
 		this->x * v.y - this->y * v.x);
+
+}
+
+float Vec3<float>::angleBetween(const Vec3<float>& v) {
+
+	return acos(this->dot(v) / (this->length() * v.length()));
 
 }
