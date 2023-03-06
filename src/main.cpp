@@ -4,6 +4,7 @@
 #include "Rasterizer.h"
 #include "Vec3.h"
 #include "Sphere.h"
+#include "Ray.h"
 
 void FGK() {
 
@@ -34,7 +35,17 @@ void FGK() {
 
     std::cout << c.x << " " << c.y << " " << c.z << '\n';
 
-    Sphere sphere = Sphere(10, 0, 0, 0);
+    Vec3<float> sCenter = Vec3<float>(0, 0, 0);
+
+    Sphere S = Sphere(10, sCenter);
+
+    Vec3<float> r1Origin = Vec3<float>(0, 0, -20);
+
+    Ray R1 = Ray(r1Origin, sCenter.x, sCenter.y, sCenter.z);
+
+    std::cout << R1.getDirection().x << " " << R1.getDirection().y << " " << R1.getDirection().z << '\n';
+
+    Ray R2 = Ray(r1Origin, Vec3<float>(0, 1, 0));
 
     delete x;
     delete y;
