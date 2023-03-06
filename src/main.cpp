@@ -3,6 +3,7 @@
 #include "Buffer.h"
 #include "Rasterizer.h"
 #include "Vec3.h"
+#include "Sphere.h"
 
 void FGK() {
 
@@ -32,6 +33,8 @@ void FGK() {
     c.normalize();
 
     std::cout << c.x << " " << c.y << " " << c.z << '\n';
+
+    Sphere sphere = Sphere(10, 0, 0, 0);
 
     delete x;
     delete y;
