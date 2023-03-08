@@ -23,5 +23,7 @@ public:
 	unsigned int getWidth();
 
 	unsigned int* color;
+
+	float* depth;
 };
 
