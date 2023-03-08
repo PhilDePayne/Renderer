@@ -86,7 +86,9 @@ void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 
 					std::pair<unsigned int, float> d = interpolateColor(triangle, x1, y1); //TODO: var name
 
-					if (d.second < buffer.depth[bufferWidth * y + x]) {
+					//std::cout << d.second << '\n';
+
+					if (d.second > buffer.depth[bufferWidth * y + x]) {
 
 						buffer.color[bufferWidth * y + x] = d.first;
 						buffer.depth[bufferWidth * y + x] = d.second;

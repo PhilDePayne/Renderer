@@ -24,6 +24,6 @@ public:
 
 	unsigned int* color;
 
-	unsigned int* depth;
+	float* depth;
 };
 
