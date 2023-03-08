@@ -1,11 +1,13 @@
 #pragma once
 
-template <class T>
+template <typename T>
 class Vec3 {
 
 private:
 
 public:
+
+	Vec3() {};
 
 	Vec3(T x, T y, T z) : x(x), y(y), z(z) {};
 
