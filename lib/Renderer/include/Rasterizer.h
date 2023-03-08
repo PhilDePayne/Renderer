@@ -3,6 +3,8 @@
 #include "Triangle.h"
 #include "Buffer.h"
 
+#include <utility>
+
 class Rasterizer {
 
 private:
@@ -17,7 +19,7 @@ public:
 
 	Vec3<unsigned int> rgbFromHex(unsigned int hex); //TODO: helper(?)
 
-	unsigned int interpolateColor(Triangle triangle, float x, float y);
+	std::pair<unsigned int, float> interpolateColor(Triangle triangle, float x, float y);
 
 	void drawTriangle(Triangle triangle, unsigned int color);
 };

@@ -8,7 +8,9 @@ Vec3<unsigned int> Rasterizer::rgbFromHex(unsigned int hex) {
 
 }
 
-unsigned int Rasterizer::interpolateColor(Triangle triangle, float x, float y) {
+std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, float x, float y) {
+
+	std::pair<unsigned int, float> ret;
 
 	float dx12 = triangle.a.x - triangle.b.x;
 	float dx23 = triangle.b.x - triangle.c.x;
@@ -33,8 +35,9 @@ unsigned int Rasterizer::interpolateColor(Triangle triangle, float x, float y) {
 	unsigned int color2 = 255 << 24 | (((unsigned int)(l2 * aRgb.y) & 0xff) << 16) | (((unsigned int)(l2 * bRgb.y) & 0xff) << 8) | ((unsigned int)(l2 * cRgb.y) & 0xff);
 	unsigned int color3 = 255 << 24 | (((unsigned int)(l3 * aRgb.z) & 0xff) << 16) | (((unsigned int)(l3 * bRgb.z) & 0xff) << 8) | ((unsigned int)(l3 * cRgb.z) & 0xff);
 
-
-	return  color1 + color2 + color3;
+	ret.first = color1 + color2 + color3;
+	ret.second = (l1 * triangle.a.z + l2 * triangle.b.z + l3 * triangle.c.z);
+	return  ret;
 
 }
 
@@ -81,8 +84,16 @@ void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 
 				if (s1 && s2 && s3) {
 
-					buffer.color[bufferWidth * y + x] = interpolateColor(triangle, x1, y1);
+					std::pair<unsigned int, float> d = interpolateColor(triangle, x1, y1); //TODO: var name
+					std::cout << d.second;
 
+					if (d.second >= buffer.depth[bufferWidth * y + x]) {
+
+						buffer.color[bufferWidth * y + x] = d.first;
+						buffer.depth[bufferWidth * y + x] = d.second;
+
+					}
+					
 				}
 		}
 	}
