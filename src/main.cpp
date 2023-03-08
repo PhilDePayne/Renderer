@@ -16,10 +16,12 @@ int main()
     Rasterizer* rasterizer = new Rasterizer(*buffer);
 
     Vec3<float>* x = new Vec3<float>(0.0f, 1.0f, 0.0f);
-    Vec3<float>* y = new Vec3<float>(1.0f, -1.0f, 0.0f);
+    Vec3<float>* y = new Vec3<float>(1.f, -1.0f, 0.0f);
     Vec3<float>* z = new Vec3<float>(-1.0f, -1.0f, 0.0f);
 
     Triangle* triangle = new Triangle(*x, *y, *z);
+
+    triangle->setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
 
     rasterizer->drawTriangle(*triangle, 0xff012345);
 
