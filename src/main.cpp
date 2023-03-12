@@ -2,12 +2,76 @@
 #include "Writer.h"
 #include "Buffer.h"
 #include "Rasterizer.h"
+#include "Vec3.h"
+#include "Sphere.h"
+#include "Ray.h"
+#include "Plane.h"
+
+void FGK() {
+
+    Vec3<float>* x = new Vec3<float>(0.0f, 3.0f, 0.0f);
+    Vec3<float>* y = new Vec3<float>(5.0f, 5.0f, 0.0f);
+
+    *x += *y;
+
+    std::cout << x->x << " " << x->y << " " << x->z << '\n';
+
+    *x -= *y;
+
+    *y += *x;
+
+    std::cout << y->x << " " << y->y << " " << y->z << '\n';
+
+    *y -= *x;
+
+    std::cout << x->angleBetween(*y) << '\n';
+
+    Vec3<float>* a = new Vec3<float>(4.0f, 5.0f, 1.0f);
+    Vec3<float>* b = new Vec3<float>(4.0f, 1.0f, 3.0f);
+    Vec3<float> c = a->cross(*b);
+
+    std::cout << c.x << " " << c.y << " " << c.z << '\n';
+
+    c.normalize();
+
+    std::cout << c.x << " " << c.y << " " << c.z << '\n';
+
+    Vec3<float> sCenter = Vec3<float>(0, 0, 0);
+
+    Sphere S = Sphere(10, sCenter);
+
+    Vec3<float> r1Origin = Vec3<float>(0, 0, -20);
+
+    Ray R1 = Ray(r1Origin, sCenter.x, sCenter.y, sCenter.z);
+
+    std::cout << R1.getDirection().x << " " << R1.getDirection().y << " " << R1.getDirection().z << '\n';
+
+    Ray R2 = Ray(r1Origin, Vec3<float>(0, 1, 0));
+
+    //std::cout << S.hit(R1, 0, 10) << " " << S.hit(R2, 0, 11) << '\n';
+
+    Ray R3 = Ray(Vec3<float>(0, 0, 0), Vec3<float>(1, 0, 0));
+
+    //std::cout << S.hit(R3, 0, 20) << '\n';
+
+    Plane P = Plane(Vec3<float>(0, 0.5f, 0.5f), Vec3<float>(0, 0, 0));
+
+    //std::cout << P.intersection(R2);
+
+    delete x;
+    delete y;
+    delete a;
+    delete b;
+
+}
 
 int main()
 {
     unsigned int width = 4096;
     unsigned int height = 4096;
     unsigned int color = 0xff7caf31;
+
+    FGK();
 
     Buffer* buffer = new Buffer(width, height, color);
 
