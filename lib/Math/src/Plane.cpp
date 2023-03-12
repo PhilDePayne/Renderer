@@ -30,18 +30,45 @@ void Plane::setP(Vec3<float> p) {
 
 }
 
-bool Plane::intersection(Ray ray)
+IntersectionResult Plane::intersection(Ray ray)
 {
+	IntersectionResult ret;
+	ret.type = IntersectionType::MISS;
+	ret.intersections = 0;
+	ret.intersectionPoint1 = Vec3<float>(0, 0, 0);
+	ret.intersectionPoint2 = Vec3<float>(0, 0, 0);
+
 	float denom = normal.dot(ray.getDirection());
 
 	if (std::abs(denom) > 0.0001f)
 	{
 		float t = (p - ray.getOrigin()).dot(normal) / denom;
 		if (t >= 0) {
-			Vec3<float> result = ray.getOrigin() + (ray.getDirection() * t);
-			std::cout << result.x << " " << result.y << " " << result.z << '\n';
-			return true;
+
+			ret.type = IntersectionType::HIT;
+			ret.intersections += 1;
+			ret.intersectionPoint1 = ray.getOrigin() + (ray.getDirection() * t);
+
+			return ret;
 		}
 	}
-	return false;
+	else {
+
+		float check = normal.dot(ray.getOrigin() - p);
+
+		if(check == 0) {
+
+			ret.type = IntersectionType::OVERLAP;
+			ret.intersections = 0;
+			ret.intersectionPoint1 = Vec3<float>(0, 0, 0);
+			ret.intersectionPoint2 = Vec3<float>(0, 0, 0);
+
+			return ret;
+		}
+		else {
+
+			return ret;
+
+		}
+	}
 }

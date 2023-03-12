@@ -23,6 +23,6 @@ public:
 	float getRadius() const;
 	void setRadius(float r);
 
-	bool hit(Ray ray, float t_min, float t_max) const;
+	IntersectionResult hit(Ray ray, float t_min, float t_max) const;
 
 };

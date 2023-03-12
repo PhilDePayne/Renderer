@@ -21,5 +21,5 @@ public:
 	Vec3<float> getP() const;
 	void setP(Vec3<float> p);
 
-	bool intersection(Ray ray);
+	IntersectionResult intersection(Ray ray);
 };

@@ -2,6 +2,28 @@
 
 #include "Vec3.h"
 
+enum class IntersectionType {
+
+	HIT,
+
+	MISS,
+
+	OVERLAP
+
+};
+
+struct IntersectionResult {
+
+	IntersectionType type;
+
+	int intersections;
+
+	Vec3<float> intersectionPoint1;
+
+	Vec3<float> intersectionPoint2;
+
+};
+
 class Ray {
 
 private:
