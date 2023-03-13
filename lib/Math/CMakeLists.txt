@@ -7,7 +7,8 @@ set(MATH_SOURCE_FILES
  "include/Sphere.h" "src/Sphere.cpp"
  "include/Plane.h" "src/Plane.cpp"
  "include/Vec4.h" "src/Vec4.cpp"
- "include/Mat4x4.h" "src/Mat4x4.cpp")
+ "include/Mat4x4.h" "src/Mat4x4.cpp" 
+ "include/Primitive.h" "src/Primitive.cpp")
 
 add_library(Math ${MATH_SOURCE_FILES})
 
