@@ -36,6 +36,8 @@ public:
 
 	//returns the angle between this vector and v in radians
 	float angleBetween(const Vec3& v);
+
+	Vec3<float> reflect(Vec3<float> normal);
 };
 
 typedef Vec3<float> vec3f;

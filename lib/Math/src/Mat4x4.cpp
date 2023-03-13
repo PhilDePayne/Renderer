@@ -15,7 +15,6 @@ Mat4x4::Mat4x4() {
 //[a2, b2, c2, d2]
 //[a3, b3, c3, d3]
 //[a4, b4, c4, d4]
-
 Mat4x4::Mat4x4(vec4f a, vec4f b, vec4f c, vec4f d) {
 
 	columns[0] = a; 
@@ -39,6 +38,46 @@ Mat4x4 Mat4x4::operator*(Mat4x4& mat) {
 	}
 
 	return ret;
+}
+
+vec4f Mat4x4::operator*(vec4f& v) {
+
+	vec4f ret;
+
+	for (int i = 0; i < 4; i++) {
+
+		ret[i] = v[i] * (columns[i][0] + columns[i][1] + columns[i][2] + columns[i][3]);
+
+	}
+
+	return ret;
+
+}
+
+vec4f Mat4x4::operator*(vec3f& v) {
+
+	vec4f tmp = vec4f(v);
+
+	return this->operator*(tmp);
+
+}
+
+void Mat4x4::transpose() { //TODO: one loop
+
+	vec4f rows[4];
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			rows[i][j] = columns[j][i];
+		}
+	}
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			columns[i][j] = rows[i][j];
+		}
+	}
+
 }
 
 void Mat4x4::write() {

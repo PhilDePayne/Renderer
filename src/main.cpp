@@ -79,6 +79,7 @@ void test() {
 
     Mat4x4 testMat = m1 * m2;
 
+    testMat.transpose();
     testMat.write();
 
 }
@@ -144,6 +145,12 @@ int main()
     delete a;
     delete b;
     delete c;
+
+    delete triangle2;
+
+    delete q;
+    delete w;
+    delete e;
 
 }
 

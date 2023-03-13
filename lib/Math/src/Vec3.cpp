@@ -105,3 +105,13 @@ float Vec3<float>::angleBetween(const Vec3<float>& v) {
 	return acos(this->dot(v) / (this->length() * v.length()));
 
 }
+
+Vec3<float> Vec3<float>::reflect(Vec3<float> normal) {
+
+	Vec3<float> tmpNormal = normal;
+
+	tmpNormal.normalize();
+
+	return this->operator-((tmpNormal * this->dot(tmpNormal) * 2.0f));
+
+}

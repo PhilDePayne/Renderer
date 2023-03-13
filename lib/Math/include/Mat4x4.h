@@ -15,6 +15,10 @@ public:
 	~Mat4x4() {};
 
 	Mat4x4 operator*(Mat4x4& mat);
+	vec4f operator*(vec4f& v);
+	vec4f operator*(vec3f& v);
+
+	void transpose();
 
 	void write();
 
