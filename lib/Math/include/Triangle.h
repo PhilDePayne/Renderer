@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Primitive.h"
+#include "Ray.h"
 #include "Vec3.h"
 
-class Triangle {
+class Triangle : public Primitive{
 
 private:
 
@@ -22,6 +24,10 @@ public:
 
 	Vec3<unsigned int> getColors();
 	void setColors(unsigned int colorA, unsigned int colorB, unsigned int colorC);
+
+	IntersectionResult hit(Ray ray);
+
+	void vMethod() override {};
 
 
 };
