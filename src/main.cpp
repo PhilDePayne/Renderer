@@ -6,6 +6,8 @@
 #include "Sphere.h"
 #include "Ray.h"
 #include "Plane.h"
+#include "Vec4.h"
+#include "Mat4x4.h"
 
 void FGK() {
 
@@ -65,13 +67,31 @@ void FGK() {
 
 }
 
+void test() {
+
+    vec4f a = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+    vec4f b = vec4f(2.0f, 2.0f, 2.0f, 2.0f);
+    vec4f c = vec4f(3.0f, 3.0f, 3.0f, 3.0f);
+    vec4f d = vec4f(4.0f, 4.0f, 4.0f, 4.0f);
+
+    Mat4x4 m1 = Mat4x4(a, b, c, d);
+    Mat4x4 m2 = Mat4x4(d, c, b, a);
+
+    Mat4x4 testMat = m1 * m2;
+
+    testMat.write();
+
+}
+
 int main()
 {
     unsigned int width = 256;
     unsigned int height = 256;
     unsigned int color = 0xff7caf31;
 
-    FGK();
+    //FGK();
+
+    test();
 
     Buffer* buffer = new Buffer(width, height, color);
 
