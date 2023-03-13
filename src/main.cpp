@@ -67,8 +67,8 @@ void FGK() {
 
 int main()
 {
-    unsigned int width = 4096;
-    unsigned int height = 4096;
+    unsigned int width = 256;
+    unsigned int height = 256;
     unsigned int color = 0xff7caf31;
 
     FGK();
