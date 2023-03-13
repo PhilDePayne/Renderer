@@ -1,5 +1,6 @@
 set(MATH_SOURCE_FILES
 	 
+ "include/const.h"
  "include/Triangle.h" "src/Triangle.cpp" 
  "include/Vec3.h" "src/Vec3.cpp" 
  "include/Ray.h" "src/Ray.cpp"

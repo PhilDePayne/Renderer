@@ -17,9 +17,12 @@ public:
 	Mat4x4 operator*(Mat4x4& mat);
 	vec4f operator*(vec4f& v);
 	vec4f operator*(vec3f& v);
+	vec4f operator[](const int& idx);
 
 	void transpose();
 
 	void write();
+
+	void identity();
 
 };

@@ -62,6 +62,11 @@ vec4f Mat4x4::operator*(vec3f& v) {
 
 }
 
+vec4f Mat4x4::operator[](const int& idx) {
+
+	return columns[idx];
+}
+
 void Mat4x4::transpose() { //TODO: one loop
 
 	vec4f rows[4];
@@ -92,4 +97,20 @@ void Mat4x4::write() {
 		printf("\n");
 	}
 
+}
+
+void Mat4x4::identity() {
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+
+			if (i == j) {
+				columns[i][i] = 1;
+			}
+			else {
+				columns[i][j] = 0;
+			}
+
+		}
+	}
 }

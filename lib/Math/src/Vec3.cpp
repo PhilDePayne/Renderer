@@ -23,6 +23,12 @@ Vec3<float> Vec3<float>::operator-(const Vec3<float>& v) {
 
 }
 
+Vec3<float> Vec3<float>::operator-() {
+
+	return Vec3<float>(-x, -y, -z);
+
+}
+
 Vec3<float> Vec3<float>::operator+(const Vec3<float>& v) {
 
 	return Vec3<float>(x + v.x, y + v.y, z + v.z);
