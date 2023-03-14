@@ -50,7 +50,7 @@ void FGK() {
 
     Ray R2 = Ray(r1Origin, Vec3<float>(0, 1, 0));
 
-    //std::cout << S.hit(R1, 0, 10) << " " << S.hit(R2, 0, 11) << '\n';
+    std::cout << S.hit(R1, 0, 10).intersections << " " << S.hit(R2, 0, 11).intersections << '\n';
 
     Ray R3 = Ray(Vec3<float>(0, 0, 0), Vec3<float>(1, 0, 0));
 
@@ -90,9 +90,9 @@ int main()
     unsigned int height = 256;
     unsigned int color = 0xff7caf31;
 
-    //FGK();
+    FGK();
 
-    test();
+    //test();
 
     Buffer* buffer = new Buffer(width, height, color);
 
