@@ -46,9 +46,13 @@ vec4f Mat4x4::operator*(vec4f& v) {
 
 	for (int i = 0; i < 4; i++) {
 
-		ret[i] = v[i] * (columns[i][0] + columns[i][1] + columns[i][2] + columns[i][3]);
+		ret[i] = v[0] * columns[i][0] + v[1] * columns[i][1] + v[2] * columns[i][2] + v[3] * columns[i][3];
+
+		printf("%f ", v[i]);
 
 	}
+
+	printf("\n");
 
 	return ret;
 
@@ -57,6 +61,8 @@ vec4f Mat4x4::operator*(vec4f& v) {
 vec4f Mat4x4::operator*(vec3f& v) {
 
 	vec4f tmp = vec4f(v);
+
+	printf("\n %f \n", tmp.z);
 
 	return this->operator*(tmp);
 

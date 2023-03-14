@@ -13,7 +13,7 @@ private:
 
 public:
 
-	Rasterizer(Buffer buf) : buffer(buf) {};
+	Rasterizer(Buffer buf) : buffer(buf) {}
 
 	~Rasterizer() {};
 

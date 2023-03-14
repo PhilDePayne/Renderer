@@ -3,12 +3,14 @@
 
 void VertexProcessor::setPerspective(float fovy, float aspect, float near, float far)
 {
-	fovy *= PI / 360;
+	fovy *= PI / 180;
 	float f = cos(fovy) / sin(fovy);
-	view2Proj[0] = vec4f(f / aspect, 0, 0, 0);
-	view2Proj[1] = vec4f(0, f, 0, 0);
-	view2Proj[2] = vec4f(0, 0, (far + near) / (near-far), -1);
-	view2Proj[3] = vec4f(0, 0, 2* far * near / (near-far), 0);
+	
+	view2Proj.columns[0] = vec4f(f / aspect, 0, 0, 0); //TODO: []operator
+	view2Proj.columns[1] = vec4f(0, f, 0, 0);
+	view2Proj.columns[2] = vec4f(0, 0, (far + near) / (near - far), -1);
+	view2Proj.columns[3] = vec4f(0, 0, 2 * far * near / (near - far), 0);
+
 
 }
 
@@ -61,5 +63,21 @@ void VertexProcessor::rotate(float a, vec3f v) {
 			v.z*v.z*(1-c) + c, 0),
 		vec4f(0, 0, 0, 1));
 	obj2World = m * obj2World;
+
+}
+
+vec3f VertexProcessor::process(vec3f& v) {
+
+	vec3f ret;
+
+	vec4f tmp = view2Proj * v;
+
+	ret.x = tmp.x / tmp.w;
+
+	ret.y = tmp.y / tmp.w;
+
+	ret.z = tmp.z / tmp.w;
+
+	return ret;
 
 }

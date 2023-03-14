@@ -1,6 +1,5 @@
 ﻿#include "Buffer.h"
 
-
 Buffer::Buffer(unsigned int height, unsigned int width, unsigned int color) : height(height), width(width)
 {
 	size = height * width;
@@ -11,8 +10,9 @@ Buffer::Buffer(unsigned int height, unsigned int width, unsigned int color) : he
 
 	for (int i = 0; i < size; i++) {
 		this->color[i] = color;
-		this->depth[i] = 1.0f;
+		this->depth[i] = 100.0f;
 	}
+
 }
 
 Buffer::~Buffer()

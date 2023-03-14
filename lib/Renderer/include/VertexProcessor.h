@@ -19,5 +19,7 @@ public:
 	void translate(vec3f v);
 	void scale(vec3f v);
 	void rotate(float a, vec3f v);
+
+	vec3f process(vec3f& v);
 	
 };
