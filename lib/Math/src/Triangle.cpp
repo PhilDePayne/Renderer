@@ -40,7 +40,7 @@ IntersectionResult Triangle::hit(Ray ray) {
 
     if (a > -EPSILON && a < EPSILON) {
 
-        return false;    // This ray is parallel to this triangle.
+        return ret;    // This ray is parallel to this triangle.
 
     }
         
@@ -50,7 +50,7 @@ IntersectionResult Triangle::hit(Ray ray) {
 
     if (u < 0.0 || u > 1.0) {
 
-        return false;
+        return ret;
 
     }
         
@@ -59,7 +59,7 @@ IntersectionResult Triangle::hit(Ray ray) {
 
     if (v < 0.0 || u + v > 1.0) {
 
-        return false;
+        return ret;
 
     }
         
@@ -67,10 +67,14 @@ IntersectionResult Triangle::hit(Ray ray) {
     float t = f * edge2.dot(q);
     if (t > EPSILON) // ray intersection
     {
-        outIntersectionPoint = rayOrigin + rayVector * t;
-        return true;
+        ret.intersections += 1;
+        ret.intersectionPoint1 = Vec3<float>(ray.getOrigin().x + (t * ray.getDirection().x),
+            ray.getOrigin().y + (t * ray.getDirection().y),
+            ray.getOrigin().z + (t * ray.getDirection().z));
+        return ret;
     }
-    else // This means that there is a line intersection but not a ray intersection.
-        return false;
+    else { // This means that there is a line intersection but not a ray intersection.
+        return ret;
+    }
 
 }
