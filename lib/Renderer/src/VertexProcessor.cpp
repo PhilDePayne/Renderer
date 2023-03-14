@@ -3,7 +3,7 @@
 
 void VertexProcessor::setPerspective(float fovy, float aspect, float near, float far)
 {
-	fovy *= PI / 180;
+	fovy *= PI / 360;
 	float f = cos(fovy) / sin(fovy);
 	
 	view2Proj.columns[0] = vec4f(f / aspect, 0, 0, 0); //TODO: []operator
