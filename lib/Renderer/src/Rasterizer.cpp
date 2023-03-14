@@ -31,9 +31,9 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, f
 	Vec3<unsigned int> bRgb = rgbFromHex(triangle.getColors().y);
 	Vec3<unsigned int> cRgb = rgbFromHex(triangle.getColors().z);
 
-	unsigned int color1 = 255 << 24 | (((unsigned int)(l1 * aRgb.x) & 0xff) << 16) | (((unsigned int)(l1 * bRgb.x) & 0xff) << 8) | ((unsigned int)(l1 * cRgb.x) & 0xff);
-	unsigned int color2 = 255 << 24 | (((unsigned int)(l2 * aRgb.y) & 0xff) << 16) | (((unsigned int)(l2 * bRgb.y) & 0xff) << 8) | ((unsigned int)(l2 * cRgb.y) & 0xff);
-	unsigned int color3 = 255 << 24 | (((unsigned int)(l3 * aRgb.z) & 0xff) << 16) | (((unsigned int)(l3 * bRgb.z) & 0xff) << 8) | ((unsigned int)(l3 * cRgb.z) & 0xff);
+	unsigned int color1 = 255 << 24 | (((unsigned int)(aRgb.x * l1) & 0xff) << 16) | (((unsigned int)(bRgb.x * l1) & 0xff) << 8) | ((unsigned int)(cRgb.x * l1) & 0xff);
+	unsigned int color2 = 255 << 24 | (((unsigned int)(aRgb.y * l2) & 0xff) << 16) | (((unsigned int)(bRgb.y * l2) & 0xff) << 8) | ((unsigned int)(cRgb.y * l2) & 0xff);
+	unsigned int color3 = 255 << 24 | (((unsigned int)(aRgb.z * l3) & 0xff) << 16) | (((unsigned int)(bRgb.z * l3) & 0xff) << 8) | ((unsigned int)(cRgb.z * l3) & 0xff);
 
 	ret.first = color1 + color2 + color3;
 	ret.second = (l1 * triangle.a.z + l2 * triangle.b.z + l3 * triangle.c.z);
@@ -50,30 +50,34 @@ void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 	float dy23 = triangle.b.y - triangle.c.y;
 	float dy31 = triangle.c.y - triangle.a.y;
 
+	//printf("\n %f %f %f \n", triangle.a.x, triangle.a.y, triangle.a.z);
+	//printf("\n %f %f %f \n", triangle.b.x, triangle.b.y, triangle.b.z);
+	//printf("\n %f %f %f \n", triangle.c.x, triangle.c.y, triangle.c.z);
+
 	unsigned int bufferWidth = buffer.getWidth();
 	unsigned int bufferHeight = buffer.getHeight();
 
-	int minX = std::min(triangle.a.x, std::min(triangle.b.x, triangle.c.x));
-	int maxX = std::max(triangle.a.x, std::max(triangle.b.x, triangle.c.x));
-	int minY = std::min(triangle.a.y, std::min(triangle.b.y, triangle.c.y));
-	int maxY = std::max(triangle.a.y, std::max(triangle.b.y, triangle.c.y));
+	float minX = std::min(triangle.a.x, std::min(triangle.b.x, triangle.c.x));
+	float maxX = std::max(triangle.a.x, std::max(triangle.b.x, triangle.c.x));
+	float minY = std::min(triangle.a.y, std::min(triangle.b.y, triangle.c.y));
+	float maxY = std::max(triangle.a.y, std::max(triangle.b.y, triangle.c.y));
 
-	minX = std::min(minX, -1);
-	maxX = std::min(maxX, 1);
-	minY = std::min(minY, -1);
-	maxY = std::min(maxY, 1);
+	minX = std::max(minX, -1.0f);
+	maxX = std::min(maxX, 1.0f);
+	minY = std::max(minY, -1.0f);
+	maxY = std::min(maxY, 1.0f);
 
-	minX = (minX + 1) * bufferWidth * 0.5f;
-	maxX = (maxX + 1) * bufferWidth * 0.5f;
-	minY = (minY + 1) * bufferHeight * 0.5f;
-	maxY = (maxY + 1) * bufferHeight * 0.5f;
+	int minX1 = (minX + 1) * bufferWidth * 0.5f;
+	int maxX1 = (maxX + 1) * bufferWidth * 0.5f;
+	int minY1 = (minY + 1) * bufferHeight * 0.5f;
+	int maxY1 = (maxY + 1) * bufferHeight * 0.5f;
 
 	bool tl1 = (dy12 < 0 || (dy12 == 0 && dx12 > 0));
 	bool tl2 = (dy23 < 0 || (dy23 == 0 && dx23 > 0));
 	bool tl3 = (dy31 < 0 || (dy31 == 0 && dx31 > 0));
 
-	for (int y = minY; y < maxY; y++) {
-		for (int x = minX; x < maxX; x++) {
+	for (int y = minY1; y < maxY1; y++) {
+		for (int x = minX1; x < maxX1; x++) {
 
 			float x1 = 2 * ((float)x) / ((float)bufferWidth) - 1; //TODO: static normalize function
 			float y1 = 2 * ((float)y) / ((float)buffer.getHeight()) - 1;
@@ -88,7 +92,7 @@ void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 
 					//std::cout << d.second << '\n';
 
-					if (d.second > buffer.depth[bufferWidth * y + x]) {
+					if (d.second < buffer.depth[bufferWidth * y + x]) {
 
 						buffer.color[bufferWidth * y + x] = d.first;
 						buffer.depth[bufferWidth * y + x] = d.second;

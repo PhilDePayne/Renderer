@@ -23,6 +23,12 @@ Vec3<float> Vec3<float>::operator-(const Vec3<float>& v) {
 
 }
 
+Vec3<float> Vec3<float>::operator-() {
+
+	return Vec3<float>(-x, -y, -z);
+
+}
+
 Vec3<float> Vec3<float>::operator+(const Vec3<float>& v) {
 
 	return Vec3<float>(x + v.x, y + v.y, z + v.z);
@@ -103,5 +109,15 @@ Vec3<float> Vec3<float>::cross(const Vec3<float>& v) {
 float Vec3<float>::angleBetween(const Vec3<float>& v) {
 
 	return acos(this->dot(v) / (this->length() * v.length()));
+
+}
+
+Vec3<float> Vec3<float>::reflect(Vec3<float> normal) {
+
+	Vec3<float> tmpNormal = normal;
+
+	tmpNormal.normalize();
+
+	return this->operator-((tmpNormal * this->dot(tmpNormal) * 2.0f));
 
 }

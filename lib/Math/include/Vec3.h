@@ -20,8 +20,27 @@ public:
 	void operator+=(const Vec3& v);
 	void operator-=(const Vec3& v);
 	Vec3 operator-(const Vec3& v);
+	Vec3 operator-();
 	Vec3 operator+(const Vec3& v);
 	Vec3 operator*(const float& v);
+
+	T& operator[](const int& x) {
+
+		switch (x) {
+		case 0:
+			return this->x;
+			break;
+		case 1:
+			return this->y;
+			break;
+		case 2:
+			return this->z;
+			break;
+		default:
+			throw std::out_of_range("Index out of range, must be 0-3");
+			break;
+		}
+	}
 
 	void divide(const float& x);
 	void multiply(const float& x);
@@ -36,4 +55,8 @@ public:
 
 	//returns the angle between this vector and v in radians
 	float angleBetween(const Vec3& v);
+
+	Vec3<float> reflect(Vec3<float> normal);
 };
+
+typedef Vec3<float> vec3f;

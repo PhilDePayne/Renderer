@@ -2,7 +2,7 @@ set(RASTERIZER_SOURCE_FILES
 	"include/Buffer.h" "src/Buffer.cpp" 
 	"include/Writer.h" "src/Writer.cpp"
 	"include/Rasterizer.h" "src/Rasterizer.cpp"
-)
+ "include/VertexProcessor.h" "src/VertexProcessor.cpp")
 
 add_library(Rasterizer ${RASTERIZER_SOURCE_FILES})
 
