@@ -76,11 +76,16 @@ void test() {
     vec4f d = vec4f(4.0f, 4.0f, 4.0f, 4.0f);
 
     Mat4x4 m1 = Mat4x4(a, b, c, d);
-    Mat4x4 m2 = Mat4x4(d, c, b, a);
+
+    vec4f q = vec4f(3.0f, 2.0f, 1.0f, 4.0f);
+    vec4f w = vec4f(4.0f, 3.0f, 2.0f, 1.0f);
+    vec4f e = vec4f(1.0f, 4.0f, 3.0f, 2.0f);
+    vec4f r = vec4f(2.0f, 1.0f, 4.0f, 3.0f);
+    Mat4x4 m2 = Mat4x4(q, w, e, r);
 
     Mat4x4 testMat = m1 * m2;
 
-    testMat.transpose();
+    //testMat.transpose();
     testMat.write();
 
 }
@@ -93,51 +98,53 @@ int main()
 
     //FGK();
 
-    //test();
+    test();
 
     Buffer* buffer = new Buffer(width, height, color);
 
     Writer* writer = new Writer();
 
     VertexProcessor vp = VertexProcessor();
-    vp.setPerspective(60.0f, 1.0f, 0.1f, 1.0f);
+    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    vp.rotate(90.0f, vec3f(0.0f, 0.0f, 1.0f)); //FIX: wont go over 90deg
+    vp.scale(vec3f(2.0f, 2.0f, 2.0f));
+    vp.translate(vec3f(1.0f, 2.0f, -5.0f));    
 
     Rasterizer* rasterizer = new Rasterizer(*buffer);
 
-    Vec3<float>* x = new Vec3<float>(1.0f, 1.0f, -3.0f);
-    Vec3<float>* y = new Vec3<float>(1.f, -1.0f, -3.0f);
-    Vec3<float>* z = new Vec3<float>(-1.0f, -1.0f, -3.0f);
-
-    Triangle* triangle = new Triangle(*x, *y, *z);
-
-    Vec3<float>* a = new Vec3<float>(0.0f, 1.0f, -2.0f);
-    Vec3<float>* b = new Vec3<float>(1.0f, -1.0f, -2.0f);
-    Vec3<float>* c = new Vec3<float>(-1.0f, -1.0f, -2.0f);
+    Vec3<float>* a = new Vec3<float>(0.0f, 1.0f, 0.0f);
+    Vec3<float>* b = new Vec3<float>(1.0f, -1.0f, 0.0f);
+    Vec3<float>* c = new Vec3<float>(-1.0f, -1.0f, 0.0f);
 
     Triangle* triangle1 = new Triangle(*a, *b, *c);
 
-    Vec3<float>* q = new Vec3<float>(-1.0f, 1.0f, 2.0f);
-    Vec3<float>* w = new Vec3<float>(0.0f, 1.0f, 2.0f);
-    Vec3<float>* e = new Vec3<float>(-1.0f, -1.0f, 2.0f);
-
-    Triangle* triangle2 = new Triangle(*q, *w, *e);
-
-    triangle->setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
     triangle1->setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
-    triangle2->setColors(0xffffffff, 0xffffffff, 0xffffffff);
 
     Triangle testTriangle = Triangle(vp.process(triangle1->a),
         vp.process(triangle1->b),
         vp.process(triangle1->c));
 
-    rasterizer->drawTriangle(Triangle(vp.process(triangle->a),
-        vp.process(triangle->b),
-        vp.process(triangle->c)), 0xff);
-
     testTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
     rasterizer->drawTriangle(testTriangle, 0xff);
 
-    
+    vp.clear();
+
+    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    vp.rotate(50.0f, vec3f(0.0f, 1.0f, 0.0f)); //FIX: wont go over 90deg
+    vp.scale(vec3f(1.0f, 1.0f, 1.0f));
+    vp.translate(vec3f(-1.0f, 0.0f, 5.0f));
+
+    testTriangle = Triangle(vp.process(triangle1->a),
+        vp.process(triangle1->b),
+        vp.process(triangle1->c));
+
+    testTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+
+    rasterizer->drawTriangle(testTriangle, 0xff);
 
     writer->write(TGA, width, height, buffer->color);
 
@@ -147,23 +154,11 @@ int main()
 
     delete rasterizer;
 
-    delete triangle;
-
-    delete x;
-    delete y;
-    delete z;
-
     delete triangle1;
 
     delete a;
     delete b;
     delete c;
-
-    delete triangle2;
-
-    delete q;
-    delete w;
-    delete e;
 
 }
 

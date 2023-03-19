@@ -43,16 +43,13 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, f
 
 void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 {
+	printf("\nDraw\n");
 	float dx12 = triangle.a.x - triangle.b.x;
 	float dx23 = triangle.b.x - triangle.c.x;
 	float dx31 = triangle.c.x - triangle.a.x;
 	float dy12 = triangle.a.y - triangle.b.y;
 	float dy23 = triangle.b.y - triangle.c.y;
 	float dy31 = triangle.c.y - triangle.a.y;
-
-	//printf("\n %f %f %f \n", triangle.a.x, triangle.a.y, triangle.a.z);
-	//printf("\n %f %f %f \n", triangle.b.x, triangle.b.y, triangle.b.z);
-	//printf("\n %f %f %f \n", triangle.c.x, triangle.c.y, triangle.c.z);
 
 	unsigned int bufferWidth = buffer.getWidth();
 	unsigned int bufferHeight = buffer.getHeight();
@@ -89,8 +86,6 @@ void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 				if (s1 && s2 && s3) {
 
 					std::pair<unsigned int, float> d = interpolateColor(triangle, x1, y1); //TODO: var name
-
-					//std::cout << d.second << '\n';
 
 					if (d.second < buffer.depth[bufferWidth * y + x]) {
 

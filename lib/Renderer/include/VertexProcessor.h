@@ -12,10 +12,13 @@ private:
 
 public:
 
+	VertexProcessor();
+
 	void setPerspective(float fovy, float aspect,
 		float near, float far);
 	void setLookAt(vec3f eye, vec3f center, vec3f up);
 	void setIdentity();
+	void clear();
 	void translate(vec3f v);
 	void scale(vec3f v);
 	void rotate(float a, vec3f v);

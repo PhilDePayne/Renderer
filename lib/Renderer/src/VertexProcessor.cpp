@@ -1,6 +1,14 @@
 #include "VertexProcessor.h"
 #include "const.h"
 
+VertexProcessor::VertexProcessor() {
+
+	obj2World.identity();
+	world2View.identity();
+	view2Proj.identity();
+
+}
+
 void VertexProcessor::setPerspective(float fovy, float aspect, float near, float far)
 {
 	fovy *= PI / 360;
@@ -21,14 +29,23 @@ void VertexProcessor::setLookAt(vec3f eye, vec3f center, vec3f up)
 	up.normalize();
 	vec3f s = f.cross(up);
 	vec3f u = s.cross(f);
-	world2View[0] = vec4f(s[0], u[0], -f[0], 0);
-	world2View[1] = vec4f(s[1], u[1], -f[1], 0);
-	world2View[2] = vec4f(s[2], u[2], -f[2], 0);
-	world2View[3] = vec4f(0, 0, 0, 1);
+	world2View.columns[0] = vec4f(s[0], u[0], -f[0], 0);
+	world2View.columns[1] = vec4f(s[1], u[1], -f[1], 0);
+	world2View.columns[2] = vec4f(s[2], u[2], -f[2], 0);
+	world2View.columns[3] = vec4f(0, 0, 0, 1);
 	Mat4x4 m;
 	m.identity();
-	m[3] = vec4f(-eye, 1);
+	vec4f negEye = vec4f(-eye, 1);
+	m.columns[3] = negEye; //FIX: m[3] does not become -eye
 	world2View = world2View * m;
+
+}
+
+void VertexProcessor::clear() {
+
+	obj2World.identity();
+	world2View.identity();
+	view2Proj.identity();
 
 }
 
@@ -70,13 +87,29 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 	vec3f ret;
 
-	vec4f tmp = view2Proj * v;
+	//vec4f tmp = view2Proj * (world2View * (obj2World * v));
+
+	//vec4f tmp = view2Proj *( world2View * (obj2World * v));
+
+	//vec4f tmp = (view2Proj * (world2View * obj2World)) * v;
+
+	//vec4f tmp = (obj2World * world2View * view2Proj) * v;
+
+	vec4f tmp = obj2World * v;
+	tmp = world2View * tmp;
+	tmp = view2Proj * tmp;
 
 	ret.x = tmp.x / tmp.w;
 
 	ret.y = tmp.y / tmp.w;
 
 	ret.z = tmp.z / tmp.w;
+
+	printf("\n %f %f %f \n", tmp.x, tmp.y, tmp.z);
+
+	obj2World.write();
+	world2View.write();
+	view2Proj.write();
 
 	return ret;
 
