@@ -9,7 +9,8 @@
 #include "Vec4.h"
 #include "Mat4x4.h"
 #include "VertexProcessor.h"
-#include "Camera.h"
+#include "OrthoCamera.h"
+#include "PerspectiveCamera.h"
 
 unsigned int width = 256;
 unsigned int height = 256;
@@ -21,13 +22,21 @@ void FGK() {
 
     Writer writer = Writer();
 
-    Camera orthoCamera = Camera(CameraType::ORTHO);
+    OrthoCamera orthoCamera = OrthoCamera();
+    PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere sphere = Sphere(10.0f, 0.0f, 0.0f, 20.0f);
+    Sphere sphere1 = Sphere(0.1f, 0.0f, 0.0f, 50.0f);
+    Sphere sphere2 = Sphere(0.1f, 1.0f, 0.0f, 40.0f);
 
-    orthoCamera.renderOrtho(buffer, sphere);
+    Sphere sphere3 = Sphere(10.0f, 0.0f, 0.0f, 50.0f);
+    Sphere sphere4 = Sphere(10.0f, 10.0f, 0.0f, 40.0f);
 
-    writer.write(Extension::TGA, width, height, buffer.color);
+    orthoCamera.render(buffer, sphere1);
+    orthoCamera.render(buffer, sphere2);
+    //pCam.render(buffer, sphere3);
+    //pCam.render(buffer, sphere4);
+
+    writer.write(TGA, width, height, buffer.color);
 
 }
 
