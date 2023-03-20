@@ -3,7 +3,8 @@ set(RASTERIZER_SOURCE_FILES
 	"include/Writer.h" "src/Writer.cpp"
 	"include/Rasterizer.h" "src/Rasterizer.cpp"
 	"include/VertexProcessor.h" "src/VertexProcessor.cpp" 
-	"include/Camera.h" "src/Camera.cpp")
+	"include/Camera.h" "src/Camera.cpp" 
+	"include/LightIntensity.h" "src/LightIntensity.cpp")
 
 add_library(Rasterizer ${RASTERIZER_SOURCE_FILES})
 
