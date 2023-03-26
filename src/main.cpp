@@ -11,6 +11,7 @@
 #include "VertexProcessor.h"
 #include "OrthoCamera.h"
 #include "PerspectiveCamera.h"
+#include "Mesh.h"
 
 unsigned int width = 256;
 unsigned int height = 256;
@@ -31,10 +32,21 @@ void FGK() {
     Sphere sphere3 = Sphere(10.0f, 0.0f, 0.0f, 50.0f);
     Sphere sphere4 = Sphere(10.0f, 10.0f, 0.0f, 40.0f);
 
-    orthoCamera.render(buffer, sphere1);
-    orthoCamera.render(buffer, sphere2);
+    Triangle triangle = Triangle(vec3f(0.0f, 1.0f, 1.0f), vec3f(1.0f, 0.0f, 1.0f), vec3f(-1.0f, 0.0f, 1.0f));
+
+    Mesh mesh;
+
+    mesh.loadObj("Top_Hat_0.obj");
+
+    //orthoCamera.render(buffer, sphere1);
+    //orthoCamera.render(buffer, sphere2);
+    //orthoCamera.render(buffer, triangle);
+    orthoCamera.render(buffer, mesh);
+
+    //pCam.render(buffer, triangle);
     //pCam.render(buffer, sphere3);
     //pCam.render(buffer, sphere4);
+    //pCam.render(buffer, mesh);
 
     writer.write(TGA, width, height, buffer.color);
 
@@ -104,10 +116,11 @@ void MiAGK() {
 
 void test() {
 
-    Ray ray = Ray(vec3f(0, 0, 0), vec3f(0, 0, 1));
+    Ray ray = Ray(vec3f(0.863281f, 0.003906f, 0), vec3f(0, 0, 1));
     Sphere sphere = Sphere(10.0f, 0.0f, 0.0f, 0.0f);
+    Triangle triangle = Triangle(vec3f(0.0f, 1.0f, 1.0f), vec3f(1.0f, 0.0f, 1.0f), vec3f(-1.0f, 0.0f, 1.0f));
 
-    if (sphere.hit(ray, 0, 11.0f).intersections > 0) {
+    if (triangle.hit(ray).type == IntersectionType::HIT) {
         printf("HIT");
     }
 

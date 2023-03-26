@@ -67,6 +67,7 @@ IntersectionResult Triangle::hit(Ray ray) {
     float t = f * edge2.dot(q);
     if (t > EPSILON) // ray intersection
     {
+        ret.type = IntersectionType::HIT;
         ret.intersections += 1;
         ret.intersectionPoint1 = Vec3<float>(ray.getOrigin().x + (t * ray.getDirection().x),
             ray.getOrigin().y + (t * ray.getDirection().y),

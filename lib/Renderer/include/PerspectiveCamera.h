@@ -3,6 +3,8 @@
 #include "Vec3.h"
 #include "Buffer.h" //TODO: forward declaration
 #include "Sphere.h"
+#include "Triangle.h"
+#include "Mesh.h"
 
 class PerspectiveCamera
 {
@@ -22,4 +24,6 @@ public:
 	~PerspectiveCamera() {};
 
 	void render(Buffer buffer, Sphere sphere);
+	void render(Buffer buffer, Triangle triangle);
+	void render(Buffer buffer, Mesh mesh);
 };
