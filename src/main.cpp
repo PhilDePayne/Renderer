@@ -13,6 +13,7 @@
 #include "PerspectiveCamera.h"
 #include "Mesh.h"
 #include "Cone.h"
+#include "Cylinder.h"
 
 unsigned int width = 2048;
 unsigned int height = 2048;
@@ -64,15 +65,19 @@ void MiAGK() {
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.rotate(0.0f, vec3f(1.0f, 0.0f, 0.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(0.2f, -1.0f, 0.0f));
 
-    Cone testCone = Cone(12, 2.0f, 2.0f);
+    //Cone testCone = Cone(12, 2.0f, 2.0f);
 
-    for (int i = 0; i < 24; i++) {
+    Cylinder testCylinder = Cylinder(3, 1, 2.0f, 2.0f);
 
-        Triangle processedTriangle = Triangle(vp.process(testCone.triangles[i].a),
-            vp.process(testCone.triangles[i].b),
-            vp.process(testCone.triangles[i].c));
+    for (int i = 0; i < testCylinder.triangles.size(); i++) {
+
+        Triangle processedTriangle = Triangle(vp.process(testCylinder.triangles[i].a),
+            vp.process(testCylinder.triangles[i].b),
+            vp.process(testCylinder.triangles[i].c));
 
         processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
 

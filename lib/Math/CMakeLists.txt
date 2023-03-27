@@ -10,7 +10,8 @@ set(MATH_SOURCE_FILES
  "include/Mat4x4.h" "src/Mat4x4.cpp" 
  "include/Primitive.h" "src/Primitive.cpp"
  "include/Mesh.h" "src/Mesh.cpp" 
- "include/Cone.h" "src/Cone.cpp")
+ "include/Cone.h" "src/Cone.cpp" 
+ "include/Cylinder.h" "src/Cylinder.cpp")
 
 add_library(Math ${MATH_SOURCE_FILES})
 

@@ -87,14 +87,6 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 	vec3f ret;
 
-	//vec4f tmp = view2Proj * (world2View * (obj2World * v));
-
-	//vec4f tmp = view2Proj *( world2View * (obj2World * v));
-
-	//vec4f tmp = (view2Proj * (world2View * obj2World)) * v;
-
-	//vec4f tmp = (obj2World * world2View * view2Proj) * v;
-
 	vec4f tmp = obj2World * v;
 	tmp = world2View * tmp;
 	tmp = view2Proj * tmp;
@@ -105,11 +97,11 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 	ret.z = tmp.z / tmp.w;
 
-	printf("\n %f %f %f \n", tmp.x, tmp.y, tmp.z);
+	//printf("\n %f %f %f \n", tmp.x, tmp.y, tmp.z);
 
-	obj2World.write();
-	world2View.write();
-	view2Proj.write();
+	//obj2World.write();
+	//world2View.write();
+	//view2Proj.write();
 
 	return ret;
 
