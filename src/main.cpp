@@ -18,6 +18,7 @@
 #include "Torus.h"
 #include "Light.h"
 #include "MathHelper.h"
+#include "Scene.h"
 
 unsigned int width = 2048;
 unsigned int height = 2048;
