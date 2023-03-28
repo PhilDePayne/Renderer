@@ -12,6 +12,7 @@
 #include "OrthoCamera.h"
 #include "PerspectiveCamera.h"
 #include "Mesh.h"
+#include "Scene.h"
 
 unsigned int width = 256;
 unsigned int height = 256;
@@ -26,8 +27,11 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere sphere1 = Sphere(0.1f, 0.0f, 0.0f, 50.0f);
-    Sphere sphere2 = Sphere(0.1f, 1.0f, 0.0f, 40.0f);
+    Sphere* sphere1 = new Sphere(0.7f, 0.0f, 0.0f, 50.0f);
+    Sphere* sphere2 = new Sphere(0.1f, 0.0f, 0.0f, 40.0f);
+
+    sphere1->color = 0xff12ff98;
+    sphere2->color = 0xff9812ff;
 
     Sphere sphere3 = Sphere(10.0f, 0.0f, 0.0f, 50.0f);
     Sphere sphere4 = Sphere(10.0f, 10.0f, 0.0f, 40.0f);
@@ -36,12 +40,20 @@ void FGK() {
 
     Mesh mesh;
 
-    mesh.loadObj("Top_Hat_0.obj");
+    mesh.loadObj("Alpaca_1.obj");
+
+    Scene scene;
+
+    scene.elements.push_back(sphere1);
+    scene.elements.push_back(sphere2);
+
+    orthoCamera.aa = false;
 
     //orthoCamera.render(buffer, sphere1);
     //orthoCamera.render(buffer, sphere2);
     //orthoCamera.render(buffer, triangle);
-    orthoCamera.render(buffer, mesh);
+    //orthoCamera.render(buffer, mesh);
+    //orthoCamera.render(buffer, scene);
 
     //pCam.render(buffer, triangle);
     //pCam.render(buffer, sphere3);
@@ -134,4 +146,5 @@ int main()
 
     //MiAGK();
 
+    printf("\n %d", color);
 }

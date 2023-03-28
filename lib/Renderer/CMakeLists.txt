@@ -4,7 +4,9 @@ set(RASTERIZER_SOURCE_FILES
 	"include/Rasterizer.h" "src/Rasterizer.cpp"
 	"include/VertexProcessor.h" "src/VertexProcessor.cpp" 
 	"include/OrthoCamera.h" "src/OrthoCamera.cpp" 
-	"include/LightIntensity.h" "src/LightIntensity.cpp" "include/PerspectiveCamera.h" "src/PerspectiveCamera.cpp")
+	"include/LightIntensity.h" "src/LightIntensity.cpp" 
+	"include/PerspectiveCamera.h" "src/PerspectiveCamera.cpp"
+	"include/Scene.h" "src/Scene.cpp")
 
 add_library(Rasterizer ${RASTERIZER_SOURCE_FILES})
 

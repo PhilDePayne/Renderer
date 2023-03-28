@@ -22,6 +22,8 @@ struct IntersectionResult {
 
 	Vec3<float> intersectionPoint2;
 
+	unsigned int color;
+
 };
 
 class Ray {
