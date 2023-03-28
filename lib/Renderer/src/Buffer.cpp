@@ -10,7 +10,7 @@ Buffer::Buffer(unsigned int height, unsigned int width, unsigned int color) : he
 
 	for (int i = 0; i < size; i++) {
 		this->color[i] = color;
-		this->depth[i] = 100.0f;
+		this->depth[i] = 10000.0f;
 	}
 
 }

@@ -30,7 +30,7 @@ void Plane::setP(Vec3<float> p) {
 
 }
 
-IntersectionResult Plane::intersection(Ray ray)
+IntersectionResult Plane::hit(Ray ray)
 {
 	IntersectionResult ret;
 	ret.type = IntersectionType::MISS;

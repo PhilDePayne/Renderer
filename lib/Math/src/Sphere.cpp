@@ -1,4 +1,6 @@
 #include "Sphere.h"
+#include "const.h"
+
 #include <cmath>
 #include <iostream>
 
@@ -36,13 +38,14 @@ void Sphere::setRadius(float r) {
 
 };
 
-IntersectionResult Sphere::hit(Ray ray, float t_min, float t_max) const {
+IntersectionResult Sphere::hit(Ray ray) {
 
 	IntersectionResult ret;
 	ret.type = IntersectionType::MISS;
 	ret.intersections = 0;
 	ret.intersectionPoint1 = Vec3<float>(0, 0, 0);
 	ret.intersectionPoint2 = Vec3<float>(0, 0, 0);
+	ret.color = CLEAR_COLOR;
 
 	Vec3<float> oc = ray.getOrigin() - origin;
 
@@ -56,19 +59,20 @@ IntersectionResult Sphere::hit(Ray ray, float t_min, float t_max) const {
 
 		float temp = (-b - std::sqrtf(discriminant)) / a;
 
-		if (temp <= t_max && temp > t_min) {
+		if (temp <= INF && temp > 0) {
 
 			ret.type = IntersectionType::HIT;
 			ret.intersections += 1;
 			ret.intersectionPoint1 = Vec3<float>(ray.getOrigin().x + (temp * ray.getDirection().x),
 												 ray.getOrigin().y + (temp * ray.getDirection().y), 
 												 ray.getOrigin().z + (temp * ray.getDirection().z));
+			ret.color = color;
 
 		}
 
 		temp = (-b + std::sqrtf(discriminant)) / a;
 
-		if (temp <= t_max && temp > t_min) {
+		if (temp <= INF && temp > 0) {
 
 			ret.type = IntersectionType::HIT;
 			ret.intersections += 1;
@@ -83,6 +87,8 @@ IntersectionResult Sphere::hit(Ray ray, float t_min, float t_max) const {
 					ray.getOrigin().y + (temp * ray.getDirection().y),
 					ray.getOrigin().z + (temp * ray.getDirection().z));
 			}
+
+			ret.color = color;
 		}
 
 		return ret;

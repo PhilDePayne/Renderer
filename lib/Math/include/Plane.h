@@ -2,8 +2,9 @@
 
 #include "Vec3.h"
 #include "Ray.h"
+#include "Primitive.h"
 
-class Plane {
+class Plane : public Primitive {
 
 private:
 
@@ -21,5 +22,5 @@ public:
 	Vec3<float> getP() const;
 	void setP(Vec3<float> p);
 
-	IntersectionResult intersection(Ray ray);
+	IntersectionResult hit(Ray ray) override;
 };
