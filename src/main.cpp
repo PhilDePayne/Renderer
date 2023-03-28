@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "Cone.h"
 #include "Cylinder.h"
+#include "Torus.h"
 
 unsigned int width = 2048;
 unsigned int height = 2048;
@@ -65,14 +66,36 @@ void MiAGK() {
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(0.0f, vec3f(1.0f, 0.0f, 0.0f));
+    //vp.rotate(0.0f, vec3f(1.0f, 0.0f, 0.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(0.2f, -2.0f, 0.0f));
+
+    Cone testCone = Cone(12, 2.0f, 2.0f);
+
+    for (int i = 0; i < testCone.triangles.size(); i++) {
+
+        Triangle processedTriangle = Triangle(vp.process(testCone.triangles[i].a),
+            vp.process(testCone.triangles[i].b),
+            vp.process(testCone.triangles[i].c));
+
+        processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+
+        rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
+
+    }
+
+    vp.clear();
+
+    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
     vp.translate(vec3f(0.2f, -1.0f, 0.0f));
 
-    //Cone testCone = Cone(12, 2.0f, 2.0f);
+    Cylinder testCylinder = Cylinder(12, 6, 2.0f, 1.0f);
 
-    Cylinder testCylinder = Cylinder(3, 1, 2.0f, 2.0f);
-
+    
     for (int i = 0; i < testCylinder.triangles.size(); i++) {
 
         Triangle processedTriangle = Triangle(vp.process(testCylinder.triangles[i].a),
@@ -84,6 +107,35 @@ void MiAGK() {
         rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
 
     }
+
+    vp.clear();
+
+    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    //vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(0.2f, 3.0f, 0.0f));
+
+    Torus testTorus = Torus();
+
+
+    for (int i = 0; i < testTorus.triangles.size(); i++) {
+
+        Triangle processedTriangle = Triangle(vp.process(testTorus.triangles[i].a),
+            vp.process(testTorus.triangles[i].b),
+            vp.process(testTorus.triangles[i].c));
+
+        processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+
+        rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
+
+    }
+    
+
+    vp.clear();
+
+    
 
     writer->write(TGA, width, height, buffer->color);
 

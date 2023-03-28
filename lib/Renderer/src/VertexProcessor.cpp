@@ -97,12 +97,6 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 	ret.z = tmp.z / tmp.w;
 
-	//printf("\n %f %f %f \n", tmp.x, tmp.y, tmp.z);
-
-	//obj2World.write();
-	//world2View.write();
-	//view2Proj.write();
-
 	return ret;
 
 }
