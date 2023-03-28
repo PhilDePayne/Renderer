@@ -12,9 +12,12 @@
 #include "OrthoCamera.h"
 #include "PerspectiveCamera.h"
 #include "Mesh.h"
+#include "Cone.h"
+#include "Cylinder.h"
+#include "Torus.h"
 
-unsigned int width = 256;
-unsigned int height = 256;
+unsigned int width = 2048;
+unsigned int height = 2048;
 unsigned int color = 0xff7caf31;
 
 void FGK() {
@@ -57,47 +60,82 @@ void MiAGK() {
 
     Writer* writer = new Writer();
 
+    Rasterizer* rasterizer = new Rasterizer(*buffer);
+
     VertexProcessor vp = VertexProcessor();
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(90.0f, vec3f(0.0f, 0.0f, 1.0f)); //FIX: wont go over 90deg
-    vp.scale(vec3f(2.0f, 2.0f, 2.0f));
-    vp.translate(vec3f(1.0f, 2.0f, -5.0f));
+    //vp.rotate(0.0f, vec3f(1.0f, 0.0f, 0.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(0.2f, -2.0f, 0.0f));
 
-    Rasterizer* rasterizer = new Rasterizer(*buffer);
+    Cone testCone = Cone(12, 2.0f, 2.0f);
 
-    Vec3<float>* a = new Vec3<float>(0.0f, 1.0f, 0.0f);
-    Vec3<float>* b = new Vec3<float>(1.0f, -1.0f, 0.0f);
-    Vec3<float>* c = new Vec3<float>(-1.0f, -1.0f, 0.0f);
+    for (int i = 0; i < testCone.triangles.size(); i++) {
 
-    Triangle* triangle1 = new Triangle(*a, *b, *c);
+        Triangle processedTriangle = Triangle(vp.process(testCone.triangles[i].a),
+            vp.process(testCone.triangles[i].b),
+            vp.process(testCone.triangles[i].c));
 
-    triangle1->setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+        processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
 
-    Triangle testTriangle = Triangle(vp.process(triangle1->a),
-        vp.process(triangle1->b),
-        vp.process(triangle1->c));
+        rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
 
-    testTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
-    rasterizer->drawTriangle(testTriangle, 0xff);
+    }
 
     vp.clear();
 
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(50.0f, vec3f(0.0f, 1.0f, 0.0f)); //FIX: wont go over 90deg
-    vp.scale(vec3f(1.0f, 1.0f, 1.0f));
-    vp.translate(vec3f(-1.0f, 0.0f, 5.0f));
+    vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(0.2f, -1.0f, 0.0f));
 
-    testTriangle = Triangle(vp.process(triangle1->a),
-        vp.process(triangle1->b),
-        vp.process(triangle1->c));
+    Cylinder testCylinder = Cylinder(12, 6, 2.0f, 1.0f);
 
-    testTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+    
+    for (int i = 0; i < testCylinder.triangles.size(); i++) {
 
-    rasterizer->drawTriangle(testTriangle, 0xff);
+        Triangle processedTriangle = Triangle(vp.process(testCylinder.triangles[i].a),
+            vp.process(testCylinder.triangles[i].b),
+            vp.process(testCylinder.triangles[i].c));
+
+        processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+
+        rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
+
+    }
+
+    vp.clear();
+
+    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    //vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(0.2f, 3.0f, 0.0f));
+
+    Torus testTorus = Torus();
+
+
+    for (int i = 0; i < testTorus.triangles.size(); i++) {
+
+        Triangle processedTriangle = Triangle(vp.process(testTorus.triangles[i].a),
+            vp.process(testTorus.triangles[i].b),
+            vp.process(testTorus.triangles[i].c));
+
+        processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+
+        rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
+
+    }
+    
+
+    vp.clear();
+
+    
 
     writer->write(TGA, width, height, buffer->color);
 
@@ -106,32 +144,20 @@ void MiAGK() {
     delete writer;
 
     delete rasterizer;
-
-    delete triangle1;
-
-    delete a;
-    delete b;
-    delete c;
 }
 
 void test() {
 
-    Ray ray = Ray(vec3f(0.863281f, 0.003906f, 0), vec3f(0, 0, 1));
-    Sphere sphere = Sphere(10.0f, 0.0f, 0.0f, 0.0f);
-    Triangle triangle = Triangle(vec3f(0.0f, 1.0f, 1.0f), vec3f(1.0f, 0.0f, 1.0f), vec3f(-1.0f, 0.0f, 1.0f));
-
-    if (triangle.hit(ray).type == IntersectionType::HIT) {
-        printf("HIT");
-    }
+    
 
 }
 
 int main()
 {
-    FGK();
+    //FGK();
 
     test();
 
-    //MiAGK();
+    MiAGK();
 
 }
