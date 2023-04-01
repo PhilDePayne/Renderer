@@ -18,6 +18,8 @@ public:
 
 	std::vector<vec3f> meshVertices;
 
+	std::vector<vec3f> normals;
+
 	void loadObj(const char* filename);
 
 };

@@ -25,24 +25,102 @@ void Cone::generate() {
 
 	}
 
+	if (vertices.size() > segments + 1) vertices.pop_back();
+
 	vertices.push_back(center + vec3f(0.0f, height, 0.0f));
 
 	for (int i = 1; i <= segments * 2; i++) {
 
 		if (i < segments) {
-			meshVertices.push_back(vertices[i]);
-			meshVertices.push_back(vertices[i + 1]);
-			meshVertices.push_back(vertices[0]);
+			faceIndex.push_back(i);
+			faceIndex.push_back(i + 1);
+			faceIndex.push_back(0);
+
 			triangles.push_back(Triangle(vertices[i], vertices[i + 1], vertices[0]));
 
 		}
 
+		else if (i == segments) {
+			faceIndex.push_back(i);
+			faceIndex.push_back(1);
+			faceIndex.push_back(0);
+
+			triangles.push_back(Triangle(vertices[i], vertices[1], vertices[0]));
+		}
+
+		else if (i == segments * 2) {
+			faceIndex.push_back(1);
+			faceIndex.push_back(i - segments);
+			faceIndex.push_back(vertices.size() - 1);
+
+			triangles.push_back(Triangle(vertices[i - segments], vertices[1], vertices.back()));
+		}
+
+		else {
+			faceIndex.push_back(i - segments + 1);
+			faceIndex.push_back(i - segments);
+			faceIndex.push_back(vertices.size() - 1);
+
+			triangles.push_back(Triangle(vertices[i - segments], vertices[i - segments + 1], vertices.back()));
+
+		}
+
+	}
+
+	for (int i = 0; i < vertices.size(); i++) {
+		normals.push_back(vec3f(0, 0, 0));
+	}
+
+	for (int i = 0; i < triangles.size(); i++) {
+
+		vec3f a = vertices[faceIndex[i * 3 + 2]] - vertices[faceIndex[i * 3]];
+		vec3f b = vertices[faceIndex[i * 3 + 1]] - vertices[faceIndex[i * 3]];
+
+		vec3f normal = a.cross(b);
+
+		normal.normalize();
+
+		normals[faceIndex[i * 3]] += -normal;
+		normals[faceIndex[i * 3 + 1]] += -normal;
+		normals[faceIndex[i * 3 + 2]] += -normal;
+		
+	}
+
+	for (int i = 0; i < normals.size(); i++) {
+
+		normals[i].normalize();
+
+	}
+
+	triangles.clear();
+
+	for (int i = 1; i <= segments * 2; i++) {
+
+		if (i < segments) {
+
+			triangles.push_back(Triangle(Vec3<vec3f>(vertices[i], vertices[i + 1], vertices[0]),
+				Vec3<vec3f>(normals[i], normals[i + 1], normals[0])));
+
+		}
+
+		
+		else if (i == segments) {
+
+			triangles.push_back(Triangle(Vec3<vec3f>(vertices[i], vertices[1], vertices[0]),
+				Vec3<vec3f>(normals[i], normals[1], normals[0])));
+		}
+
+		else if (i == segments * 2) {
+
+			triangles.push_back(Triangle(Vec3<vec3f>(vertices[1], vertices[i - segments], vertices.back()),
+				Vec3<vec3f>(normals[1], normals[i - segments], normals.back())));
+		}
+		
+
 		else {
 
-			meshVertices.push_back(vertices[i - segments]);
-			meshVertices.push_back(vertices[i - segments + 1]);
-			meshVertices.push_back(vertices.back());
-			triangles.push_back(Triangle(vertices[i - segments], vertices[i - segments + 1], vertices.back()));
+			triangles.push_back(Triangle(Vec3<vec3f>(vertices[i - segments + 1], vertices[i - segments], vertices.back()),
+				Vec3<vec3f>(normals[i - segments + 1], normals[i - segments], normals.back())));
 
 		}
 

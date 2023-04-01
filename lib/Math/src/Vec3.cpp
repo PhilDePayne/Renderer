@@ -81,6 +81,7 @@ void Vec3<float>::normalize() {
 		this->divide(n);
 
 	} else {
+		printf("ERROR");
 		throw std::invalid_argument("Divisor can't be 0");
 	}
 

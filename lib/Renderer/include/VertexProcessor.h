@@ -6,11 +6,14 @@ class VertexProcessor {
 
 private:
 
+	
+
+public:
+
+	//TODO: private
 	Mat4x4 obj2World;
 	Mat4x4 world2View;
 	Mat4x4 view2Proj;
-
-public:
 
 	VertexProcessor();
 

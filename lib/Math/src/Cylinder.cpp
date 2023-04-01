@@ -90,12 +90,21 @@ void Cylinder::generate() {
 
 		triangles.push_back(Triangle(v1, v2, v3));
 
-		//printf("\n %f", v3.y);
-
-		//printf("\n %d %d %d", i + (segmentsY * (segmentsX + 1)), i + (segmentsY * (segmentsX + 1)) + 1, 9);
-
 	}
 	
+	for (int i = 0; i < triangles.size(); i++) {
 
+		vec3f a = triangles[i].c - triangles[i].a;
+		vec3f b = triangles[i].b - triangles[i].a;
+
+		vec3f normal = a.cross(b);
+
+		normal.normalize();
+
+		triangles[i].normalsA = normal;
+		triangles[i].normalsB = normal;
+		triangles[i].normalsC = normal;
+
+	}
 	
 }
