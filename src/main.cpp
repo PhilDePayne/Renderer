@@ -66,9 +66,9 @@ void MiAGK() {
 
     Light dirLight;
 
-    dirLight.position = vec3f(1.0f, 0.0f, 0.0f);
+    dirLight.position = vec3f(-1.0f, 0.0f, 0.0f);
     dirLight.diffuse = vec3f(0.0f, 255.0f, 0.0f);
-    dirLight.ambient = vec3f(0.0f, 1.0f, 0.0f);
+    dirLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
     dirLight.specular = vec3f(0.0f, 0.0f, 1.0f);
     dirLight.shininess = 0.2f;
 
@@ -117,6 +117,10 @@ void MiAGK() {
         vec3f colorA = dirLight.diffuse * intensityA;
         vec3f colorB = dirLight.diffuse * intensityB;
         vec3f colorC = dirLight.diffuse * intensityC;
+
+        colorA = colorA.max(dirLight.ambient);
+        colorB = colorB.max(dirLight.ambient);
+        colorC = colorC.max(dirLight.ambient);
 
         writeHex(hexFromRgb(colorA));
         writeHex(hexFromRgb(colorB));
