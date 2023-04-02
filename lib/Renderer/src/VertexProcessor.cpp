@@ -1,5 +1,6 @@
 #include "VertexProcessor.h"
 #include "const.h"
+#include "MathHelper.h"
 
 VertexProcessor::VertexProcessor() {
 
@@ -99,4 +100,36 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 	return ret;
 
+}
+
+unsigned int VertexProcessor::calculateLight(vec3f& v, vec3f& n, Light& l)
+{
+	vec4f tmp = obj2World * n;
+	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
+
+	worldSpaceNormal.normalize();
+
+	float intensity = std::max(worldSpaceNormal.dot(l.position), 0.0f);
+
+	/*
+	vec3f spec(0, 0, 0);
+
+	if (intensity > 0.0f) {
+		vec4f tmpWorldVertex = obj2World * v;
+		vec3f worldVertex = vec3f(tmpWorldVertex.x, tmpWorldVertex.y, tmpWorldVertex.z);
+		vec3f eye = -worldVertex;
+		eye.normalize();
+		vec3f h = l.position + eye;
+		h.normalize();
+
+		float intSpec = std::max(h.dot(worldSpaceNormal), 0.0f);
+		spec = l.specular * pow(intSpec, l.shininess);
+	}
+	*/
+
+	vec3f color = l.diffuse * intensity;// +spec;
+
+	color = color.max(l.ambient);
+
+	return hexFromRgb(color);
 }

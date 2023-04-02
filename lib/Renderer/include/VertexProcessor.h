@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Light.h"
 #include "Mat4x4.h"
 
 class VertexProcessor {
@@ -27,5 +28,5 @@ public:
 	void rotate(float a, vec3f v);
 
 	vec3f process(vec3f& v);
-	
+	unsigned int calculateLight(vec3f& v, vec3f& n, Light& l);
 };

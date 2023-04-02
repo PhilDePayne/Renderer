@@ -20,6 +20,8 @@ public:
 
 	std::vector<vec3f> normals;
 
+	Vec3<unsigned int> colors = Vec3<unsigned int>(0xffff0000, 0xff00ff00, 0xff0000ff);
+
 	void loadObj(const char* filename);
 
 };
