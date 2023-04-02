@@ -90,6 +90,8 @@ void Cone::generate() {
 
 		normals[i].normalize();
 
+		printf("\n %f %f %f \n END NORMALS", normals[i].x, normals[i].y, normals[i].z);
+
 	}
 
 	triangles.clear();

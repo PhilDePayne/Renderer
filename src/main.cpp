@@ -67,7 +67,7 @@ void MiAGK() {
     Light dirLight;
 
     dirLight.position = vec3f(1.0f, 0.0f, 0.0f);
-    dirLight.diffuse = vec3f(256.0f, 0.0f, 0.0f);
+    dirLight.diffuse = vec3f(0.0f, 255.0f, 0.0f);
     dirLight.ambient = vec3f(0.0f, 1.0f, 0.0f);
     dirLight.specular = vec3f(0.0f, 0.0f, 1.0f);
     dirLight.shininess = 0.2f;
@@ -76,7 +76,7 @@ void MiAGK() {
     vp.setPerspective(90.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(-20.0f, vec3f(1.0f, 0.0f, 0.0f));
+    vp.rotate(0.0f, vec3f(1.0f, 0.0f, 0.0f));
     //vp.rotate(30.0f, vec3f(1.0f, 1.0f, 0.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
     //vp.translate(vec3f(0.2f, -2.0f, 0.0f));
@@ -118,10 +118,16 @@ void MiAGK() {
         vec3f colorB = dirLight.diffuse * intensityB;
         vec3f colorC = dirLight.diffuse * intensityC;
 
-        processedTriangle.setColors(hexFromRgb(colorA), hexFromRgb(colorB), hexFromRgb(colorC));
-        //processedTriangle.setColors(0xff0000ff, 0xff00ff00, 0xffff0000);
+        writeHex(hexFromRgb(colorA));
+        writeHex(hexFromRgb(colorB));
+        writeHex(hexFromRgb(colorC));
 
-        printf("\n %d %d %d", processedTriangle.getColors().x, processedTriangle.getColors().y, processedTriangle.getColors().z);
+        processedTriangle.setColors(hexFromRgb(colorA), hexFromRgb(colorB), hexFromRgb(colorC));
+        //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
+
+        writeHex(processedTriangle.getColors().x);
+        writeHex(processedTriangle.getColors().y);
+        writeHex(processedTriangle.getColors().z);
 
         rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
 
