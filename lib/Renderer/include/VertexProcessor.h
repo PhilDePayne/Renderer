@@ -28,5 +28,6 @@ public:
 	void rotate(float a, vec3f v);
 
 	vec3f process(vec3f& v);
-	unsigned int calculateLight(vec3f& v, vec3f& n, Light& l);
+	unsigned int calculateDirLight(vec3f& v, vec3f& n, Light& l);
+	unsigned int calculatePointLight(vec3f& v, vec3f& n, Light& l);
 };

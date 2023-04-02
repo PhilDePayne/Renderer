@@ -102,14 +102,17 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 }
 
-unsigned int VertexProcessor::calculateLight(vec3f& v, vec3f& n, Light& l)
+unsigned int VertexProcessor::calculateDirLight(vec3f& v, vec3f& n, Light& l)
 {
 	vec4f tmp = obj2World * n;
 	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
-
 	worldSpaceNormal.normalize();
 
-	float intensity = std::max(worldSpaceNormal.dot(l.position), 0.0f);
+	worldSpaceNormal = n;
+
+	printf("\n %f %f %f", worldSpaceNormal.x, worldSpaceNormal.y, worldSpaceNormal.z);
+
+	float intensity = std::max(worldSpaceNormal.dot(-l.position), 0.0f);
 
 	/*
 	vec3f spec(0, 0, 0);
@@ -128,6 +131,28 @@ unsigned int VertexProcessor::calculateLight(vec3f& v, vec3f& n, Light& l)
 	*/
 
 	vec3f color = l.diffuse * intensity;// +spec;
+
+	color = color.max(l.ambient);
+
+	return hexFromRgb(color);
+}
+
+unsigned int VertexProcessor::calculatePointLight(vec3f& v, vec3f& n, Light& l)
+{
+	vec4f tmp = obj2World * n;
+	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
+	worldSpaceNormal.normalize();
+
+	worldSpaceNormal = n;
+
+	printf("\n %f %f %f", worldSpaceNormal.x, worldSpaceNormal.y, worldSpaceNormal.z);
+
+	vec3f lightDir = l.position - v;
+
+
+	float intensity = std::max(worldSpaceNormal.dot(lightDir), 0.0f);
+
+	vec3f color = l.diffuse * intensity;
 
 	color = color.max(l.ambient);
 

@@ -59,11 +59,44 @@ void Torus::generate() {
         }
     }
 
-    printf("\n %d", vertices.size());
-
     for (int i = 0; i < faceIndex.size() / 6; i++) {
         triangles.push_back(Triangle(vertices[faceIndex[i * 6]], vertices[faceIndex[i * 6 + 1]], vertices[faceIndex[i * 6 + 2]]));
         triangles.push_back(Triangle(vertices[faceIndex[i * 6 + 3]], vertices[faceIndex[i * 6 + 4]], vertices[faceIndex[i * 6 + 5]]));
     }
+
+    for (int i = 0; i < vertices.size(); i++) {
+        normals.push_back(vec3f(0, 0, 0));
+    }
+
+    for (int i = 0; i < triangles.size(); i++) {
+
+        vec3f a = vertices[faceIndex[i * 3 + 2]] - vertices[faceIndex[i * 3]];
+        vec3f b = vertices[faceIndex[i * 3 + 1]] - vertices[faceIndex[i * 3]];
+
+        vec3f normal = a.cross(b);
+
+        normal.normalize();
+
+        normals[faceIndex[i * 3]] += -normal;
+        normals[faceIndex[i * 3 + 1]] += -normal;
+        normals[faceIndex[i * 3 + 2]] += -normal;
+
+    }
+
+    for (int i = 0; i < normals.size(); i++) {
+
+        normals[i].normalize();
+
+        //printf("\n %f %f %f \n END NORMALS", normals[i].x, normals[i].y, normals[i].z);
+
+    }
+
+    triangles.clear();
     
+    for (int i = 0; i < faceIndex.size() / 6; i++) {
+        triangles.push_back(Triangle(Vec3<vec3f>(vertices[faceIndex[i * 6]], vertices[faceIndex[i * 6 + 1]], vertices[faceIndex[i * 6 + 2]]),
+                                     Vec3<vec3f>(normals[faceIndex[i * 6]], normals[faceIndex[i * 6 + 1]], normals[faceIndex[i * 6 + 2]])));
+        triangles.push_back(Triangle(Vec3<vec3f>(vertices[faceIndex[i * 6 + 3]], vertices[faceIndex[i * 6 + 4]], vertices[faceIndex[i * 6 + 5]]),
+                                     Vec3<vec3f>(normals[faceIndex[i * 6 + 3]], normals[faceIndex[i * 6 + 4]], normals[faceIndex[i * 6 + 5]])));
+    }
 }

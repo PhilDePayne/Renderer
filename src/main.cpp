@@ -74,18 +74,24 @@ void MiAGK() {
     dirLight.specular = vec3f(0.0f, 0.0f, 1.0f);
     dirLight.shininess = 128.0f;
 
+    Light pointLight;
+
+    pointLight.position = vec3f(6.0f, -2.0f, 0.0f);
+    pointLight.diffuse = vec3f(0.0f, 255.0f, 0.0f);
+    pointLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
+    pointLight.specular = vec3f(0.0f, 0.0f, 1.0f);
+    pointLight.shininess = 128.0f;
+    
     /*
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    //vp.rotate(10.0f, vec3f(1.0f, 0.0f, 0.0f));
+    vp.rotate(45.0f, vec3f(0.0f, 0.0f, 1.0f));
     //vp.rotate(30.0f, vec3f(1.0f, 1.0f, 0.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(0.0f, -0.5f, 0.0f));
+    vp.translate(vec3f(-0.5f, 1.0f, 0.0f));
 
     Cone testCone = Cone(12, 2.0f, 2.0f);
-    
-    printf("\n %f %f %f", dirLight.position.x, dirLight.position.y, dirLight.position.z);
 
     for (int i = 0; i < testCone.triangles.size(); i++) {
 
@@ -94,9 +100,17 @@ void MiAGK() {
                                                             vp.process(testCone.triangles[i].c)),
             Vec3<vec3f>(testCone.triangles[i].normalsA, testCone.triangles[i].normalsB, testCone.triangles[i].normalsC));
 
-        processedTriangle.setColors(vp.calculateLight(testCone.triangles[i].a, testCone.triangles[i].normalsA, dirLight),
-                                    vp.calculateLight(testCone.triangles[i].b, testCone.triangles[i].normalsB, dirLight), 
-                                    vp.calculateLight(testCone.triangles[i].c, testCone.triangles[i].normalsC, dirLight));
+        
+        processedTriangle.setColors(vp.calculateDirLight(testCone.triangles[i].a, testCone.triangles[i].normalsA, dirLight),
+                                    vp.calculateDirLight(testCone.triangles[i].b, testCone.triangles[i].normalsB, dirLight), 
+                                    vp.calculateDirLight(testCone.triangles[i].c, testCone.triangles[i].normalsC, dirLight));
+                                    
+        
+        processedTriangle.setColors(vp.calculatePointLight(testCone.triangles[i].a, testCone.triangles[i].normalsA, pointLight),
+                                    vp.calculatePointLight(testCone.triangles[i].b, testCone.triangles[i].normalsB, pointLight),
+                                    vp.calculatePointLight(testCone.triangles[i].c, testCone.triangles[i].normalsC, pointLight));
+                                    
+
         //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
 
         rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
@@ -104,13 +118,15 @@ void MiAGK() {
     }
     vp.clear();
     */
+    
 
+    /*
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    //vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
+    vp.rotate(20.0f, vec3f(1.0f, 0.0f, 1.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(0.2f, -1.0f, 0.0f));
+    //vp.translate(vec3f(1.2f, -1.0f, 0.0f));
 
     Cylinder testCylinder = Cylinder(12, 3, 2.0f, 1.0f);
 
@@ -129,16 +145,16 @@ void MiAGK() {
         rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
 
     }
-
-    /*
     vp.clear();
+    */
 
+    
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
     //vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(0.2f, 3.0f, 0.0f));
+    //vp.translate(vec3f(0.2f, 3.0f, 0.0f));
 
     Torus testTorus = Torus();
 
@@ -149,7 +165,11 @@ void MiAGK() {
             vp.process(testTorus.triangles[i].b),
             vp.process(testTorus.triangles[i].c));
 
-        processedTriangle.setColors(0xff000000, 0xff000000, 0xff000000);
+        processedTriangle.setColors(vp.calculateDirLight(testTorus.triangles[i].a, testTorus.triangles[i].normalsA, dirLight),
+            vp.calculateDirLight(testTorus.triangles[i].b, testTorus.triangles[i].normalsB, dirLight),
+            vp.calculateDirLight(testTorus.triangles[i].c, testTorus.triangles[i].normalsC, dirLight));
+
+        //processedTriangle.setColors(0xff000000, 0xff000000, 0xff000000);
 
         rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
 
@@ -157,7 +177,7 @@ void MiAGK() {
     
 
     vp.clear();
-    */
+    
 
     
 
