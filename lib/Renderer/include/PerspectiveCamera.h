@@ -5,6 +5,7 @@
 #include "Sphere.h"
 #include "Triangle.h"
 #include "Mesh.h"
+#include "Scene.h"
 
 class PerspectiveCamera
 {
@@ -23,6 +24,7 @@ public:
 	PerspectiveCamera(vec3f position, vec3f target);
 	~PerspectiveCamera() {};
 
+	void render(Buffer buffer, Scene scene);
 	void render(Buffer buffer, Sphere sphere);
 	void render(Buffer buffer, Triangle triangle);
 	void render(Buffer buffer, Mesh mesh);
