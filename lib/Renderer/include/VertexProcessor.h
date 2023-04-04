@@ -16,6 +16,10 @@ public:
 	Mat4x4 world2View;
 	Mat4x4 view2Proj;
 
+	Mat4x4 rotMat;
+	Mat4x4 scaleMat;
+	Mat4x4 transMat;
+
 	VertexProcessor();
 
 	void setPerspective(float fovy, float aspect,

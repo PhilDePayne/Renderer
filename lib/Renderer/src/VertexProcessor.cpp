@@ -8,6 +8,10 @@ VertexProcessor::VertexProcessor() {
 	world2View.identity();
 	view2Proj.identity();
 
+	rotMat.identity();
+	scaleMat.identity();
+	transMat.identity();
+
 }
 
 void VertexProcessor::setPerspective(float fovy, float aspect, float near, float far)
@@ -56,6 +60,7 @@ void VertexProcessor::translate(vec3f v) {
 		vec4f(0, 1, 0, 0),
 		vec4f(0, 0, 1, 0),
 		vec4f(v.x, v.y, v.z, 1));
+	transMat = m;
 	obj2World = m * obj2World;
 }
 
@@ -65,6 +70,7 @@ void VertexProcessor::scale(vec3f v) {
 		vec4f(0, v.y, 0, 0),
 		vec4f(0, 0, v.z, 0),
 		vec4f(0, 0, 0, 1));
+	scaleMat = m;
 	obj2World = m * obj2World;
 }
 
@@ -80,6 +86,11 @@ void VertexProcessor::rotate(float a, vec3f v) {
 		vec4f(v.x*v.z*(1-c) + v.y*s, v.y*v.z*(1-c)-v.x*s,
 			v.z*v.z*(1-c) + c, 0),
 		vec4f(0, 0, 0, 1));
+
+	Mat4x4 tmp;
+	tmp.identity();
+	rotMat = m * tmp;
+
 	obj2World = m * obj2World;
 
 }
@@ -104,31 +115,11 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 unsigned int VertexProcessor::calculateDirLight(vec3f& v, vec3f& n, Light& l)
 {
-	vec4f tmp = obj2World * n;
+	vec4f tmp = rotMat * n;
 	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
 	worldSpaceNormal.normalize();
 
-	worldSpaceNormal = n;
-
-	printf("\n %f %f %f", worldSpaceNormal.x, worldSpaceNormal.y, worldSpaceNormal.z);
-
 	float intensity = std::max(worldSpaceNormal.dot(-l.position), 0.0f);
-
-	/*
-	vec3f spec(0, 0, 0);
-
-	if (intensity > 0.0f) {
-		vec4f tmpWorldVertex = obj2World * v;
-		vec3f worldVertex = vec3f(tmpWorldVertex.x, tmpWorldVertex.y, tmpWorldVertex.z);
-		vec3f eye = -worldVertex;
-		eye.normalize();
-		vec3f h = l.position + eye;
-		h.normalize();
-
-		float intSpec = std::max(h.dot(worldSpaceNormal), 0.0f);
-		spec = l.specular * pow(intSpec, l.shininess);
-	}
-	*/
 
 	vec3f color = l.diffuse * intensity;// +spec;
 
@@ -139,11 +130,9 @@ unsigned int VertexProcessor::calculateDirLight(vec3f& v, vec3f& n, Light& l)
 
 unsigned int VertexProcessor::calculatePointLight(vec3f& v, vec3f& n, Light& l)
 {
-	vec4f tmp = obj2World * n;
+	vec4f tmp = rotMat * n;
 	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
 	worldSpaceNormal.normalize();
-
-	worldSpaceNormal = n;
 
 	printf("\n %f %f %f", worldSpaceNormal.x, worldSpaceNormal.y, worldSpaceNormal.z);
 
