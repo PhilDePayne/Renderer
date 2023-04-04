@@ -57,6 +57,8 @@ public:
 	float angleBetween(const Vec3& v);
 
 	Vec3<float> reflect(Vec3<float> normal);
+
+	Vec3<float> max(Vec3<float> v);
 };
 
 typedef Vec3<float> vec3f;

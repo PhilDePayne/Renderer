@@ -1,16 +1,24 @@
 #pragma once
 
+#include "Light.h"
 #include "Mat4x4.h"
 
 class VertexProcessor {
 
 private:
 
+	
+
+public:
+
+	//TODO: private
 	Mat4x4 obj2World;
 	Mat4x4 world2View;
 	Mat4x4 view2Proj;
 
-public:
+	Mat4x4 rotMat;
+	Mat4x4 scaleMat;
+	Mat4x4 transMat;
 
 	VertexProcessor();
 
@@ -24,5 +32,6 @@ public:
 	void rotate(float a, vec3f v);
 
 	vec3f process(vec3f& v);
-	
+	unsigned int calculateDirLight(vec3f& v, vec3f& n, Light& l);
+	unsigned int calculatePointLight(vec3f& v, vec3f& n, Light& l);
 };

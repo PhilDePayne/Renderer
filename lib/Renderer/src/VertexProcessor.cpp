@@ -1,11 +1,16 @@
 #include "VertexProcessor.h"
 #include "const.h"
+#include "MathHelper.h"
 
 VertexProcessor::VertexProcessor() {
 
 	obj2World.identity();
 	world2View.identity();
 	view2Proj.identity();
+
+	rotMat.identity();
+	scaleMat.identity();
+	transMat.identity();
 
 }
 
@@ -55,6 +60,7 @@ void VertexProcessor::translate(vec3f v) {
 		vec4f(0, 1, 0, 0),
 		vec4f(0, 0, 1, 0),
 		vec4f(v.x, v.y, v.z, 1));
+	transMat = m;
 	obj2World = m * obj2World;
 }
 
@@ -64,6 +70,7 @@ void VertexProcessor::scale(vec3f v) {
 		vec4f(0, v.y, 0, 0),
 		vec4f(0, 0, v.z, 0),
 		vec4f(0, 0, 0, 1));
+	scaleMat = m;
 	obj2World = m * obj2World;
 }
 
@@ -79,6 +86,11 @@ void VertexProcessor::rotate(float a, vec3f v) {
 		vec4f(v.x*v.z*(1-c) + v.y*s, v.y*v.z*(1-c)-v.x*s,
 			v.z*v.z*(1-c) + c, 0),
 		vec4f(0, 0, 0, 1));
+
+	Mat4x4 tmp;
+	tmp.identity();
+	rotMat = m * tmp;
+
 	obj2World = m * obj2World;
 
 }
@@ -99,4 +111,39 @@ vec3f VertexProcessor::process(vec3f& v) {
 
 	return ret;
 
+}
+
+unsigned int VertexProcessor::calculateDirLight(vec3f& v, vec3f& n, Light& l)
+{
+	vec4f tmp = rotMat * n;
+	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
+	worldSpaceNormal.normalize();
+
+	float intensity = std::max(worldSpaceNormal.dot(-l.position), 0.0f);
+
+	vec3f color = l.diffuse * intensity;// +spec;
+
+	color = color.max(l.ambient);
+
+	return hexFromRgb(color);
+}
+
+unsigned int VertexProcessor::calculatePointLight(vec3f& v, vec3f& n, Light& l)
+{
+	vec4f tmp = rotMat * n;
+	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
+	worldSpaceNormal.normalize();
+
+	printf("\n %f %f %f", worldSpaceNormal.x, worldSpaceNormal.y, worldSpaceNormal.z);
+
+	vec3f lightDir = l.position - v;
+
+
+	float intensity = std::max(worldSpaceNormal.dot(lightDir), 0.0f);
+
+	vec3f color = l.diffuse * intensity;
+
+	color = color.max(l.ambient);
+
+	return hexFromRgb(color);
 }

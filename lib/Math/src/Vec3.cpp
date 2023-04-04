@@ -81,6 +81,7 @@ void Vec3<float>::normalize() {
 		this->divide(n);
 
 	} else {
+		printf("ERROR");
 		throw std::invalid_argument("Divisor can't be 0");
 	}
 
@@ -120,4 +121,15 @@ Vec3<float> Vec3<float>::reflect(Vec3<float> normal) {
 
 	return this->operator-((tmpNormal * this->dot(tmpNormal) * 2.0f));
 
+}
+
+Vec3<float> Vec3<float>::max(Vec3<float> v)
+{
+	Vec3<float> ret;
+
+	ret.x = this->x > v.x ? this->x : v.x;
+	ret.y = this->y > v.y ? this->y : v.y;
+	ret.z = this->z > v.z ? this->z : v.z;
+
+	return ret;
 }

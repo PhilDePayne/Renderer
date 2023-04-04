@@ -1,12 +1,8 @@
 #include "Rasterizer.h"
+#include "MathHelper.h"
+
 #include <iostream>
 #include <algorithm>
-
-Vec3<unsigned int> Rasterizer::rgbFromHex(unsigned int hex) {
-
-	return Vec3<unsigned int>((hex & 0x00FF0000) >> 16, (hex & 0x0000FF00) >> 8, (hex & 0x000000FF));
-
-}
 
 std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, float x, float y) {
 
@@ -31,9 +27,17 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, f
 	Vec3<unsigned int> bRgb = rgbFromHex(triangle.getColors().y);
 	Vec3<unsigned int> cRgb = rgbFromHex(triangle.getColors().z);
 
-	unsigned int color1 = 255 << 24 | (((unsigned int)(aRgb.x * l1) & 0xff) << 16) | (((unsigned int)(bRgb.x * l1) & 0xff) << 8) | ((unsigned int)(cRgb.x * l1) & 0xff);
-	unsigned int color2 = 255 << 24 | (((unsigned int)(aRgb.y * l2) & 0xff) << 16) | (((unsigned int)(bRgb.y * l2) & 0xff) << 8) | ((unsigned int)(cRgb.y * l2) & 0xff);
-	unsigned int color3 = 255 << 24 | (((unsigned int)(aRgb.z * l3) & 0xff) << 16) | (((unsigned int)(bRgb.z * l3) & 0xff) << 8) | ((unsigned int)(cRgb.z * l3) & 0xff);
+	//unsigned int color1 = 255 << 24 | (((unsigned int)(aRgb.x * l1) & 0xff) << 16) | (((unsigned int)(bRgb.x * l1) & 0xff) << 8) | ((unsigned int)(cRgb.x * l1) & 0xff);
+	//unsigned int color2 = 255 << 24 | (((unsigned int)(aRgb.y * l2) & 0xff) << 16) | (((unsigned int)(bRgb.y * l2) & 0xff) << 8) | ((unsigned int)(cRgb.y * l2) & 0xff);
+	//unsigned int color3 = 255 << 24 | (((unsigned int)(aRgb.z * l3) & 0xff) << 16) | (((unsigned int)(bRgb.z * l3) & 0xff) << 8) | ((unsigned int)(cRgb.z * l3) & 0xff);
+
+	//unsigned int color1 = hexFromRgb(vec3f(aRgb.x * l1, aRgb.y * l2, aRgb.z * l3));
+	//unsigned int color2 = hexFromRgb(vec3f(bRgb.x * l1, bRgb.y * l2, bRgb.z * l3));
+	//unsigned int color3 = hexFromRgb(vec3f(cRgb.x * l1, cRgb.y * l2, cRgb.z * l3));
+
+	unsigned int color1 = hexFromRgb(vec3f(aRgb.x * l1, aRgb.y * l1, aRgb.z * l1));
+	unsigned int color2 = hexFromRgb(vec3f(bRgb.x * l2, bRgb.y * l2, bRgb.z * l2));
+	unsigned int color3 = hexFromRgb(vec3f(cRgb.x * l3, cRgb.y * l3, cRgb.z * l3));
 
 	ret.first = color1 + color2 + color3;
 	ret.second = (l1 * triangle.a.z + l2 * triangle.b.z + l3 * triangle.c.z);
