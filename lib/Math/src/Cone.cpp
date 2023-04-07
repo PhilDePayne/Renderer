@@ -80,9 +80,9 @@ void Cone::generate() {
 
 		normal.normalize();
 
-		normals[faceIndex[i * 3]] += -normal;
-		normals[faceIndex[i * 3 + 1]] += -normal;
-		normals[faceIndex[i * 3 + 2]] += -normal;
+		normals[faceIndex[i * 3]] += normal;
+		normals[faceIndex[i * 3 + 1]] += normal;
+		normals[faceIndex[i * 3 + 2]] += normal;
 		
 	}
 

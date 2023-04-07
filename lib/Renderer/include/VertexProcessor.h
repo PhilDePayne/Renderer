@@ -19,6 +19,7 @@ public:
 	Mat4x4 rotMat;
 	Mat4x4 scaleMat;
 	Mat4x4 transMat;
+	vec3f eyePos;
 
 	VertexProcessor();
 

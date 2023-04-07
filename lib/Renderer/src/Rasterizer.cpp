@@ -47,7 +47,6 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, f
 
 void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 {
-	printf("\nDraw\n");
 	float dx12 = triangle.a.x - triangle.b.x;
 	float dx23 = triangle.b.x - triangle.c.x;
 	float dx31 = triangle.c.x - triangle.a.x;

@@ -31,6 +31,7 @@ void VertexProcessor::setLookAt(vec3f eye, vec3f center, vec3f up)
 {
 	vec3f f = center - eye;
 	f.normalize();
+	eyePos = f;
 	up.normalize();
 	vec3f s = f.cross(up);
 	vec3f u = s.cross(f);
@@ -51,6 +52,10 @@ void VertexProcessor::clear() {
 	obj2World.identity();
 	world2View.identity();
 	view2Proj.identity();
+	rotMat.identity();
+	scaleMat.identity();
+	transMat.identity();
+	eyePos = vec3f(0, 0, 0);
 
 }
 
@@ -93,6 +98,9 @@ void VertexProcessor::rotate(float a, vec3f v) {
 
 	obj2World = m * obj2World;
 
+	rotMat.write();
+	obj2World.write();
+
 }
 
 vec3f VertexProcessor::process(vec3f& v) {
@@ -119,9 +127,12 @@ unsigned int VertexProcessor::calculateDirLight(vec3f& v, vec3f& n, Light& l)
 	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
 	worldSpaceNormal.normalize();
 
+	tmp = rotMat * v;
+	vec3f worldSpacePosition = vec3f(tmp.x, tmp.y, tmp.z);
+
 	float intensity = std::max(worldSpaceNormal.dot(-l.position), 0.0f);
 
-	vec3f color = l.diffuse * intensity;// +spec;
+	vec3f color = l.diffuse * intensity;
 
 	color = color.max(l.ambient);
 
@@ -134,16 +145,22 @@ unsigned int VertexProcessor::calculatePointLight(vec3f& v, vec3f& n, Light& l)
 	vec3f worldSpaceNormal = vec3f(tmp.x, tmp.y, tmp.z);
 	worldSpaceNormal.normalize();
 
-	printf("\n %f %f %f", worldSpaceNormal.x, worldSpaceNormal.y, worldSpaceNormal.z);
+	tmp = obj2World * v;
+	vec3f worldSpacePosition = vec3f(tmp.x, tmp.y, tmp.z);
 
-	vec3f lightDir = l.position - v;
+	vec3f lightDir = l.position - worldSpacePosition;
 
+	//printf("\n %f %f %f - %f %f %f", v.x, v.y, v.z, worldSpacePosition.x, worldSpacePosition.y, worldSpacePosition.z);
 
 	float intensity = std::max(worldSpaceNormal.dot(lightDir), 0.0f);
 
 	vec3f color = l.diffuse * intensity;
 
 	color = color.max(l.ambient);
-
+	
+	color.x = color.x > 255 ? 255 : color.x < 0 ? 0 : color.x;
+	color.y = color.y > 255 ? 255 : color.y < 0 ? 0 : color.y;
+	color.z = color.z > 255 ? 255 : color.z < 0 ? 0 : color.z;
+	
 	return hexFromRgb(color);
 }
