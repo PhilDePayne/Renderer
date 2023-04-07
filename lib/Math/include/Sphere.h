@@ -2,8 +2,9 @@
 
 #include "Vec3.h"
 #include "Ray.h"
+#include "Primitive.h"
 
-class Sphere {
+class Sphere : public Primitive{
 
 private:
 
@@ -23,6 +24,6 @@ public:
 	float getRadius() const;
 	void setRadius(float r);
 
-	IntersectionResult hit(Ray ray, float t_min, float t_max) const;
+	IntersectionResult hit(Ray ray) override;
 
 };
