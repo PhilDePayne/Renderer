@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 
-std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, float x, float y) {
+std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, Triangle rawTriangle, Light l, float x, float y, bool pixelShading) {
 
 	std::pair<unsigned int, float> ret;
 
@@ -23,30 +23,48 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, f
 	
 	float l3 = 1 - l1 - l2;
 
-	Vec3<unsigned int> aRgb = rgbFromHex(triangle.getColors().x);
-	Vec3<unsigned int> bRgb = rgbFromHex(triangle.getColors().y);
-	Vec3<unsigned int> cRgb = rgbFromHex(triangle.getColors().z);
+	if (pixelShading) {
+		vec3f p1 = rawTriangle.a * l1;
+		vec3f p2 = rawTriangle.b * l2;
+		vec3f p3 = rawTriangle.c * l3;
 
-	//unsigned int color1 = 255 << 24 | (((unsigned int)(aRgb.x * l1) & 0xff) << 16) | (((unsigned int)(bRgb.x * l1) & 0xff) << 8) | ((unsigned int)(cRgb.x * l1) & 0xff);
-	//unsigned int color2 = 255 << 24 | (((unsigned int)(aRgb.y * l2) & 0xff) << 16) | (((unsigned int)(bRgb.y * l2) & 0xff) << 8) | ((unsigned int)(cRgb.y * l2) & 0xff);
-	//unsigned int color3 = 255 << 24 | (((unsigned int)(aRgb.z * l3) & 0xff) << 16) | (((unsigned int)(bRgb.z * l3) & 0xff) << 8) | ((unsigned int)(cRgb.z * l3) & 0xff);
+		vec3f fp = p1 + p2 + p3;
 
-	//unsigned int color1 = hexFromRgb(vec3f(aRgb.x * l1, aRgb.y * l2, aRgb.z * l3));
-	//unsigned int color2 = hexFromRgb(vec3f(bRgb.x * l1, bRgb.y * l2, bRgb.z * l3));
-	//unsigned int color3 = hexFromRgb(vec3f(cRgb.x * l1, cRgb.y * l2, cRgb.z * l3));
+		vec3f n1 = rawTriangle.normalsA * l1;
+		vec3f n2 = rawTriangle.normalsB * l2;
+		vec3f n3 = rawTriangle.normalsC * l3;
 
-	unsigned int color1 = hexFromRgb(vec3f(aRgb.x * l1, aRgb.y * l1, aRgb.z * l1));
-	unsigned int color2 = hexFromRgb(vec3f(bRgb.x * l2, bRgb.y * l2, bRgb.z * l2));
-	unsigned int color3 = hexFromRgb(vec3f(cRgb.x * l3, cRgb.y * l3, cRgb.z * l3));
+		vec3f fn = n1 + n2 + n3;
 
-	ret.first = color1 + color2 + color3;
+		fn.normalize();
+
+		//ret.first = vp.calculatePointLight(fp, fn, l);
+		ret.first = vp.calculateDirLight(fp, fn, l);
+	}
+	else {
+
+		
+		Vec3<unsigned int> aRgb = rgbFromHex(rawTriangle.getColors().x);
+		Vec3<unsigned int> bRgb = rgbFromHex(rawTriangle.getColors().y);
+		Vec3<unsigned int> cRgb = rgbFromHex(rawTriangle.getColors().z);
+
+		unsigned int color1 = hexFromRgb(vec3f(aRgb.x * l1, aRgb.y * l1, aRgb.z * l1));
+		unsigned int color2 = hexFromRgb(vec3f(bRgb.x * l2, bRgb.y * l2, bRgb.z * l2));
+		unsigned int color3 = hexFromRgb(vec3f(cRgb.x * l3, cRgb.y * l3, cRgb.z * l3));
+
+		ret.first = color1 + color2 + color3;
+		
+
+	}
 	ret.second = (l1 * triangle.a.z + l2 * triangle.b.z + l3 * triangle.c.z);
 	return  ret;
 
 }
 
-void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
+void Rasterizer::drawTriangle(Triangle rawTriangle, unsigned int color, Light l, bool pixelShading)
 {
+	Triangle triangle = Triangle(vp.process(rawTriangle.a), vp.process(rawTriangle.b), vp.process(rawTriangle.c));
+
 	float dx12 = triangle.a.x - triangle.b.x;
 	float dx23 = triangle.b.x - triangle.c.x;
 	float dx31 = triangle.c.x - triangle.a.x;
@@ -88,7 +106,7 @@ void Rasterizer::drawTriangle(Triangle triangle, unsigned int color)
 
 				if (s1 && s2 && s3) {
 
-					std::pair<unsigned int, float> d = interpolateColor(triangle, x1, y1); //TODO: var name
+					std::pair<unsigned int, float> d = interpolateColor(triangle, rawTriangle, l, x1, y1, pixelShading); //TODO: var name
 
 					if (d.second < buffer.depth[bufferWidth * y + x]) {
 
