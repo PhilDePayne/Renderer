@@ -136,6 +136,10 @@ unsigned int VertexProcessor::calculateDirLight(vec3f& v, vec3f& n, Light& l)
 
 	color = color.max(l.ambient);
 
+	color.x = color.x > 255 ? 255 : color.x < 0 ? 0 : color.x;
+	color.y = color.y > 255 ? 255 : color.y < 0 ? 0 : color.y;
+	color.z = color.z > 255 ? 255 : color.z < 0 ? 0 : color.z;
+
 	return hexFromRgb(color);
 }
 
@@ -150,11 +154,25 @@ unsigned int VertexProcessor::calculatePointLight(vec3f& v, vec3f& n, Light& l)
 
 	vec3f lightDir = l.position - worldSpacePosition;
 
-	//printf("\n %f %f %f - %f %f %f", v.x, v.y, v.z, worldSpacePosition.x, worldSpacePosition.y, worldSpacePosition.z);
-
 	float intensity = std::max(worldSpaceNormal.dot(lightDir), 0.0f);
 
-	vec3f color = l.diffuse * intensity;
+	vec3f spec = vec3f(0, 0, 0);
+
+	if (intensity > 0.0) {
+
+		lightDir.normalize();
+		vec3f h = lightDir + eyePos;
+		h.normalize();
+
+		float intSpec = std::max(h.dot(n), 0.0f);
+		spec = l.specular * pow(intSpec, l.shininess);
+
+		spec.x = spec.x > 255 ? 255 : spec.x < 0 ? 0 : spec.x;
+		spec.y = spec.y > 255 ? 255 : spec.y < 0 ? 0 : spec.y;
+		spec.z = spec.z > 255 ? 255 : spec.z < 0 ? 0 : spec.z;
+	}
+
+	vec3f color = l.diffuse * intensity + spec;
 
 	color = color.max(l.ambient);
 	

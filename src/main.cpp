@@ -23,7 +23,7 @@ unsigned int width = 2048;
 unsigned int height = 2048;
 unsigned int color = 0xff7caf31;
 
-bool drawCone = false;
+bool drawCone = true;
 bool drawCylinder = true;
 
 void FGK() {
@@ -75,33 +75,33 @@ void FGK() {
 void MiAGK() {
     Buffer* buffer = new Buffer(width, height, color);
 
+    VertexProcessor vp = VertexProcessor();
+
     Writer* writer = new Writer();
 
-    Rasterizer* rasterizer = new Rasterizer(*buffer);
-
-    VertexProcessor vp = VertexProcessor();
+    Rasterizer* rasterizer = new Rasterizer(*buffer, vp);
 
     Light dirLight;
 
-    dirLight.position = vec3f(0.0f, 0.0f, 1.0f);
+    dirLight.position = vec3f(-1.0f, 0.0f, -0.5f);
     dirLight.diffuse = vec3f(0.0f, 255.0f, 0.0f);
     dirLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
-    dirLight.specular = vec3f(0.0f, 0.0f, 1.0f);
+    dirLight.specular = vec3f(255.0f, 255.0f, 255.0f);
     dirLight.shininess = 128.0f;
 
     Light pointLight;
 
-    pointLight.position = vec3f(-2.0f, 0.0f, 5.0f);
-    pointLight.diffuse = vec3f(0.0f, 56.0f, 0.0f);
+    pointLight.position = vec3f(1.0f, 0.0f, 3.0f);
+    pointLight.diffuse = vec3f(0.0f, 128.0f, 0.0f);
     pointLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
-    pointLight.specular = vec3f(0.0f, 0.0f, 1.0f);
-    pointLight.shininess = 128.0f;
+    pointLight.specular = vec3f(255.0f, 255.0f, 255.0f);
+    pointLight.shininess = 255.0f;
     
     
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    //vp.rotate(90.0f, vec3f(0.0f, 1.0f, 0.0f));
+    //vp.rotate(0.0f, vec3f(0.0f, 1.0f, 0.0f));
     //vp.rotate(30.0f, vec3f(1.0f, 1.0f, 0.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
     vp.translate(vec3f(-2.0f, 0.0f, 0.0f));
@@ -111,9 +111,9 @@ void MiAGK() {
     if (drawCone) {
         for (int i = 0; i < testCone.triangles.size(); i++) {
 
-            Triangle processedTriangle = Triangle(Vec3<vec3f>(vp.process(testCone.triangles[i].a),
-                vp.process(testCone.triangles[i].b),
-                vp.process(testCone.triangles[i].c)),
+            Triangle processedTriangle = Triangle(Vec3<vec3f>(testCone.triangles[i].a,
+                testCone.triangles[i].b,
+                testCone.triangles[i].c),
                 Vec3<vec3f>(testCone.triangles[i].normalsA, testCone.triangles[i].normalsB, testCone.triangles[i].normalsC));
 
             Vec3<unsigned int> finalColor;
@@ -129,8 +129,9 @@ void MiAGK() {
 
             //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
 
-            rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
-
+            //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
+            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight, true);
+            
         }
     }
  
@@ -139,71 +140,46 @@ void MiAGK() {
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(180.0f, vec3f(0.0f, 1.0f, 0.0f));
+    vp.rotate(10.0f, vec3f(0.0f, 1.0f, 1.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(1.0f, 0.0f, 0.0f));
+    vp.translate(vec3f(2.0f, 0.0f, 0.0f));
 
     Cylinder testCylinder = Cylinder(12, 3, 2.0f, 1.0f);
+
+    
+    if (drawCylinder) {
+        for (int i = 0; i < testCylinder.triangles.size(); i++) {
+
+            Triangle processedTriangle = testCylinder.triangles[i];
+
+            //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
+            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight, true);
+
+        }
+    }
+    
+    vp.clear();
+
+    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    vp.rotate(10.0f, vec3f(0.0f, 1.0f, 1.0f));
+    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
+    vp.translate(vec3f(2.0f, -2.2f, 0.0f));
 
     if (drawCylinder) {
         for (int i = 0; i < testCylinder.triangles.size(); i++) {
 
-            Triangle processedTriangle = Triangle(vp.process(testCylinder.triangles[i].a),
-                vp.process(testCylinder.triangles[i].b),
-                vp.process(testCylinder.triangles[i].c));
-
-            /*
-            processedTriangle.setColors(vp.calculateDirLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, dirLight));
-                */
-
+            Triangle processedTriangle = testCylinder.triangles[i];
 
             processedTriangle.setColors(vp.calculatePointLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, pointLight),
                 vp.calculatePointLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, pointLight),
                 vp.calculatePointLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, pointLight));
 
-            //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
-
-            rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
+            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, false);
 
         }
     }
-    vp.clear();
-    
-
-    /*
-    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
-    vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
-
-    vp.rotate(45.0f, vec3f(1.0f, 0.0f, 1.0f));
-    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    //vp.translate(vec3f(0.2f, 3.0f, 0.0f));
-
-    Torus testTorus = Torus();
-
-
-    for (int i = 0; i < testTorus.triangles.size(); i++) {
-
-        Triangle processedTriangle = Triangle(vp.process(testTorus.triangles[i].a),
-            vp.process(testTorus.triangles[i].b),
-            vp.process(testTorus.triangles[i].c));
-
-        processedTriangle.setColors(vp.calculateDirLight(testTorus.triangles[i].a, testTorus.triangles[i].normalsA, dirLight),
-            vp.calculateDirLight(testTorus.triangles[i].b, testTorus.triangles[i].normalsB, dirLight),
-            vp.calculateDirLight(testTorus.triangles[i].c, testTorus.triangles[i].normalsC, dirLight));
-
-        //processedTriangle.setColors(0xff000000, 0xff000000, 0xff000000);
-
-        rasterizer->drawTriangle(processedTriangle, 0xff00ff00);
-
-    }
-    */    
-
-    vp.clear();
-    
-
-    
 
     writer->write(TGA, width, height, buffer->color);
 

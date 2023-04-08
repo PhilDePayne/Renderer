@@ -19,7 +19,6 @@ void Cone::generate() {
 
 	for (float t = 0; t < 2 * PI; t += 2*PI/segments) {
 
-		//printf("\n %f %f %f \n", radius * cos(t) + center.x, center.y, radius * sin(t) + center.z);
 
 		vertices.push_back(vec3f(radius * cos(t) + center.x, center.y, radius * sin(t) + center.z));
 
@@ -89,6 +88,7 @@ void Cone::generate() {
 	for (int i = 0; i < normals.size(); i++) {
 
 		normals[i].normalize();
+		normals[i].x = -normals[i].x;
 
 		//printf("\n %f %f %f \n END NORMALS", normals[i].x, normals[i].y, normals[i].z);
 
