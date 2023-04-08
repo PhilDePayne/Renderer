@@ -75,7 +75,7 @@ void Cone::generate() {
 		vec3f a = vertices[faceIndex[i * 3 + 2]] - vertices[faceIndex[i * 3]];
 		vec3f b = vertices[faceIndex[i * 3 + 1]] - vertices[faceIndex[i * 3]];
 
-		vec3f normal = -a.cross(b);
+		vec3f normal = a.cross(b);
 
 		normal.normalize();
 
@@ -88,6 +88,7 @@ void Cone::generate() {
 	for (int i = 0; i < normals.size(); i++) {
 
 		normals[i].normalize();
+		normals[i].x = -normals[i].x;
 
 		//printf("\n %f %f %f \n END NORMALS", normals[i].x, normals[i].y, normals[i].z);
 

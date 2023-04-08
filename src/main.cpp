@@ -83,7 +83,7 @@ void MiAGK() {
 
     Light dirLight;
 
-    dirLight.position = vec3f(1.0f, 0.0f, -0.5f);
+    dirLight.position = vec3f(-1.0f, 0.0f, -0.5f);
     dirLight.diffuse = vec3f(0.0f, 255.0f, 0.0f);
     dirLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
     dirLight.specular = vec3f(255.0f, 255.0f, 255.0f);
@@ -91,7 +91,7 @@ void MiAGK() {
 
     Light pointLight;
 
-    pointLight.position = vec3f(-1.0f, 1.0f, 5.0f);
+    pointLight.position = vec3f(1.0f, 0.0f, 3.0f);
     pointLight.diffuse = vec3f(0.0f, 128.0f, 0.0f);
     pointLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
     pointLight.specular = vec3f(255.0f, 255.0f, 255.0f);
@@ -101,7 +101,7 @@ void MiAGK() {
     vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(0.0f, vec3f(0.0f, 1.0f, 0.0f));
+    //vp.rotate(0.0f, vec3f(0.0f, 1.0f, 0.0f));
     //vp.rotate(30.0f, vec3f(1.0f, 1.0f, 0.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
     vp.translate(vec3f(-2.0f, 0.0f, 0.0f));
@@ -129,8 +129,8 @@ void MiAGK() {
 
             //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
 
-            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
-            //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight);
+            //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
+            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight, true);
             
         }
     }
@@ -152,20 +152,6 @@ void MiAGK() {
 
             Triangle processedTriangle = testCylinder.triangles[i];
 
-            /*
-            processedTriangle.setColors(vp.calculateDirLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, dirLight));
-                
-
-            
-            processedTriangle.setColors(vp.calculatePointLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, pointLight),
-                vp.calculatePointLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, pointLight),
-                vp.calculatePointLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, pointLight));
-                */
-
-            //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
-
             //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
             rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight, true);
 
@@ -186,19 +172,9 @@ void MiAGK() {
 
             Triangle processedTriangle = testCylinder.triangles[i];
 
-            /*
-            processedTriangle.setColors(vp.calculateDirLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, dirLight));
-                */
-
-
-            processedTriangle.setColors(vp.calculateDirLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, dirLight),
-                vp.calculateDirLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, dirLight));
-                
-
-                //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
+            processedTriangle.setColors(vp.calculatePointLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, pointLight),
+                vp.calculatePointLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, pointLight),
+                vp.calculatePointLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, pointLight));
 
             rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, false);
 
