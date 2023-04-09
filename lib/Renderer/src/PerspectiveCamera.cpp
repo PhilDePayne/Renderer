@@ -33,7 +33,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 	vec3f u = up.cross(w);
 	u.normalize();
-	u = -u;
+	//u = -u;
 
 	vec3f v = w.cross(u);
 
