@@ -32,25 +32,38 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere* sphere1 = new Sphere(0.7f, 0.0f, 0.0f, 50.0f);
-    Sphere* sphere2 = new Sphere(0.1f, 0.0f, 0.0f, 40.0f);
+    Sphere* sphere1 = new Sphere(0.7f, 0.0f, 0.0f, 5.0f);
+    Sphere* sphere2 = new Sphere(0.1f, 0.0f, 0.0f, 4.0f);
+
+    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, 10.0f));
+    Plane* p2 = new Plane(vec3f(0.0f, 1.0f, 0.0f), vec3f(0.0f, -3.0f, 0.0f));
+    Plane* p3 = new Plane(vec3f(0.0f, -1.0f, 0.0f), vec3f(0.0f, 3.0f, 0.0f));
+    Plane* p4 = new Plane(vec3f(1.0f, 0.0f, 0.0f), vec3f(-3.0f, 0.0f, 0.0f));
+    Plane* p5 = new Plane(vec3f(-1.0f, 0.0f, 0.0f), vec3f(3.0f, 0.0f, 0.0f));
 
     sphere1->color = 0xff12ff98;
     sphere2->color = 0xff9812ff;
-
-    Sphere sphere3 = Sphere(10.0f, 0.0f, 0.0f, 50.0f);
-    Sphere sphere4 = Sphere(10.0f, 10.0f, 0.0f, 40.0f);
+    p1->color = 0xff0000ff;
+    p2->color = 0xff00ff00;
+    p3->color = 0xff00ff00;
+    p4->color = 0xffff0000;
+    p5->color = 0xffff0000;
 
     Triangle triangle = Triangle(vec3f(0.0f, 1.0f, 1.0f), vec3f(1.0f, 0.0f, 1.0f), vec3f(-1.0f, 0.0f, 1.0f));
 
     Mesh mesh;
 
-    mesh.loadObj("Alpaca_1.obj");
+    //mesh.loadObj("Alpaca_1.obj");
 
     Scene scene;
 
     scene.elements.push_back(sphere1);
     scene.elements.push_back(sphere2);
+    scene.elements.push_back(p1);
+    scene.elements.push_back(p2);
+    scene.elements.push_back(p3);
+    scene.elements.push_back(p4);
+    scene.elements.push_back(p5);
 
     orthoCamera.aa = false;
 
@@ -64,6 +77,7 @@ void FGK() {
     //pCam.render(buffer, sphere3);
     //pCam.render(buffer, sphere4);
     //pCam.render(buffer, mesh);
+    pCam.render(buffer, scene);
 
     writer.write(TGA, width, height, buffer.color);
 
@@ -210,11 +224,11 @@ void test() {
 
 int main()
 {
-    //FGK();
+    FGK();
 
     test();
 
-    MiAGK();
+    //MiAGK();
 
     printf("\n %d", color);
 }
