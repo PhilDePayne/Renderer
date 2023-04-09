@@ -17,21 +17,25 @@ Cylinder::Cylinder(int segmentsX, int segmentsY, float height, float radius)
 void Cylinder::generate() {
 
 	vertices.push_back(center);
+	uv.push_back(std::pair<float, float>(0, 0));
 
 	for (int y = 0; y <= segmentsY; y++) {
 		for (float x = 0; x < 2 * PI; x += 2 * PI / segmentsX) {
 
 			vertices.push_back(vec3f(radius * cos(x) + center.x, y * (height/segmentsY), radius * sin(x) + center.z));
+			uv.push_back(std::pair<float, float>(radius * cos(x), y * (height / segmentsY)));
 
 		}
 		if (vertices.size() > (y + 1) * segmentsX + 1)
 		{
 			printf("POPPED");
 			vertices.pop_back();
+			uv.pop_back();
 		}
 	}
 
 	vertices.push_back(center + vec3f(0.0f, height, 0.0f));
+	uv.push_back(std::pair<float, float>(0, height));
 
 	int index = 0;
 	for each (vec3f vertex in vertices)
@@ -179,24 +183,30 @@ void Cylinder::generate() {
 	}
 
 	triangles.clear();
+	Triangle tmp;
 
 	for (int i = 1; i < segmentsX; i++) {
-		faceIndex.push_back(0);
-		faceIndex.push_back(i + 1);
-		faceIndex.push_back(i);
 
-		triangles.push_back(Triangle(Vec3<vec3f>(vertices[0], vertices[i + 1], vertices[i]),
-									 Vec3<vec3f>(normals[0], normals[i + 1], normals[i])));
+		tmp = Triangle(Vec3<vec3f>(vertices[0], vertices[i + 1], vertices[i]),
+			Vec3<vec3f>(normals[0], normals[i + 1], normals[i]));
+
+		tmp.uvA = uv[0];
+		tmp.uvB = uv[i + 1];
+		tmp.uvC = uv[i];
+
+		triangles.push_back(tmp);
 
 		//printf("\n %d %d %d", 0, i + 1, i);
 	}
 
-	faceIndex.push_back(0);
-	faceIndex.push_back(1);
-	faceIndex.push_back(segmentsX);
+	tmp = Triangle(Vec3<vec3f>(vertices[0], vertices[1], vertices[segmentsX]),
+		Vec3<vec3f>(normals[0], normals[1], normals[segmentsX]));
 
-	triangles.push_back(Triangle(Vec3<vec3f>(vertices[0], vertices[1], vertices[segmentsX]),
-								 Vec3<vec3f>(normals[0], normals[1], normals[segmentsX])));
+	tmp.uvA = uv[0];
+	tmp.uvB = uv[1];
+	tmp.uvC = uv[segmentsX];
+
+	triangles.push_back(tmp);
 
 	v1, v2, v3;
 	int i1, i2, i3;
@@ -212,14 +222,14 @@ void Cylinder::generate() {
 			v2 = vertices[i2];
 			v3 = vertices[i3];
 
-			faceIndex.push_back(i1);
-			faceIndex.push_back(i2);
-			faceIndex.push_back(i3);
+			tmp = Triangle(Vec3<vec3f>(v1, v2, v3),
+				Vec3<vec3f>(normals[i1], normals[i2], normals[i3]));
 
-			triangles.push_back(Triangle(Vec3<vec3f>(v1, v2, v3),
-										 Vec3<vec3f>(normals[i1], normals[i2], normals[i3])));
+			tmp.uvA = uv[i1];
+			tmp.uvB = uv[i2];
+			tmp.uvC = uv[i3];
 
-			//printf("\n %d %d %d", i1, i2, i3);
+			triangles.push_back(tmp);
 
 			i1 = i + j * (segmentsX);
 			i2 = i + ((j + 1) * (segmentsX)) + 1;
@@ -229,14 +239,14 @@ void Cylinder::generate() {
 			v2 = vertices[i2];
 			v3 = vertices[i3];
 
-			faceIndex.push_back(i1);
-			faceIndex.push_back(i2);
-			faceIndex.push_back(i3);
+			tmp = Triangle(Vec3<vec3f>(v1, v2, v3),
+				Vec3<vec3f>(normals[i1], normals[i2], normals[i3]));
 
-			triangles.push_back(Triangle(Vec3<vec3f>(v1, v2, v3),
-										Vec3<vec3f>(normals[i1], normals[i2], normals[i3])));
+			tmp.uvA = uv[i1];
+			tmp.uvB = uv[i2];
+			tmp.uvC = uv[i3];
 
-			//printf("\n %d %d %d", i + j * (segmentsX), i + ((j + 1) * (segmentsX)) + 1, i + ((j + 1) * (segmentsX)));
+			triangles.push_back(tmp);
 		}
 
 		i1 = (j + 1) * (segmentsX);
@@ -247,14 +257,14 @@ void Cylinder::generate() {
 		v2 = vertices[i2];
 		v3 = vertices[i3];
 
-		faceIndex.push_back(i1);
-		faceIndex.push_back(i2);
-		faceIndex.push_back(i3);
+		tmp = Triangle(Vec3<vec3f>(v1, v2, v3),
+			Vec3<vec3f>(normals[i1], normals[i2], normals[i3]));
 
-		triangles.push_back(Triangle(Vec3<vec3f>(v1, v2, v3),
-									 Vec3<vec3f>(normals[i1], normals[i2], normals[i3])));
+		tmp.uvA = uv[i1];
+		tmp.uvB = uv[i2];
+		tmp.uvC = uv[i3];
 
-		//printf("\n %d %d %d", (j + 1) * (segmentsX), 1 + (j * (segmentsX)), ((j + 1) * (segmentsX)) + 1);
+		triangles.push_back(tmp);
 
 		i1 = (j + 1) * (segmentsX);
 		i2 = ((j + 1) * (segmentsX)) + 1;
@@ -264,17 +274,14 @@ void Cylinder::generate() {
 		v2 = vertices[i2];
 		v3 = vertices[i3];
 
-		faceIndex.push_back(i1);
-		faceIndex.push_back(i2);
-		faceIndex.push_back(i3);
+		tmp = Triangle(Vec3<vec3f>(v1, v2, v3),
+			Vec3<vec3f>(normals[i1], normals[i2], normals[i3]));
 
-		triangles.push_back(Triangle(Vec3<vec3f>(v1, v2, v3),
-			Vec3<vec3f>(normals[i1], normals[i2], normals[i3])));
+		tmp.uvA = uv[i1];
+		tmp.uvB = uv[i2];
+		tmp.uvC = uv[i3];
 
-		//printf("\n %d %d %d", (j + 1) * (segmentsX), ((j + 1) * (segmentsX)) + 1, ((j + 2) * (segmentsX)));
-
-
-		printf("\n");
+		triangles.push_back(tmp);
 
 	}
 
@@ -288,14 +295,14 @@ void Cylinder::generate() {
 		v2 = vertices[i2];
 		v3 = vertices.back();
 
-		faceIndex.push_back(i1);
-		faceIndex.push_back(i2);
-		faceIndex.push_back(vertices.size() - 1);
+		tmp = Triangle(Vec3<vec3f>(v1, v2, v3),
+			Vec3<vec3f>(normals[i1], normals[i2], normals.back()));
 
-		triangles.push_back(Triangle(Vec3<vec3f>(v1, v2, v3),
-			Vec3<vec3f>(normals[i1], normals[i2], normals[vertices.size() - 1])));
+		tmp.uvA = uv[i1];
+		tmp.uvB = uv[i2];
+		tmp.uvC = uv.back();
 
-		//printf("\n %d %d %d", i + (segmentsY * (segmentsX)), i + (segmentsY * (segmentsX)) + 1, vertices.size() - 1);
+		triangles.push_back(tmp);
 
 	}
 
@@ -306,12 +313,14 @@ void Cylinder::generate() {
 	v2 = vertices[i2];
 	v3 = vertices.back();
 
-	faceIndex.push_back(i1); //HERE
-	faceIndex.push_back(i2);
-	faceIndex.push_back(vertices.size() - 1);
+	tmp = Triangle(Vec3<vec3f>(v1, v2, v3),
+		Vec3<vec3f>(normals[i1], normals[i2], normals.back()));
 
-	triangles.push_back(Triangle(Vec3<vec3f>(v1, v2, v3),
-		Vec3<vec3f>(normals[i1], normals[i2], normals[vertices.size() - 1])));
+	tmp.uvA = uv[i1];
+	tmp.uvB = uv[i2];
+	tmp.uvC = uv.back();
+
+	triangles.push_back(tmp);
 
 	for (int k = 0; k < triangles.size(); k++) {
 

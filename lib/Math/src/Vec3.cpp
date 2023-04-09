@@ -9,6 +9,14 @@ void Vec3<float>::operator+=(const Vec3<float>& v) {
 
 }
 
+void Vec3<unsigned int>::operator+=(const Vec3<unsigned int>& v) {
+
+	this->x += v.x;
+	this->y += v.y;
+	this->z += v.z;
+
+}
+
 void Vec3<float>::operator-=(const Vec3<float>& v) {
 
 	this->x -= v.x;

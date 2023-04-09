@@ -25,7 +25,7 @@ unsigned int color = 0xff7caf31;
 
 bool drawTriangle = false;
 bool drawCone = true;
-bool drawCylinder = false;
+bool drawCylinder = true;
 
 void FGK() {
 
@@ -87,7 +87,7 @@ void MiAGK() {
     Light dirLight;
 
     dirLight.position = vec3f(-1.0f, 0.0f, -0.5f);
-    dirLight.diffuse = vec3f(0.0f, 255.0f, 0.0f);
+    dirLight.diffuse = vec3f(128.0f, 128.0f, 128.0f);
     dirLight.ambient = vec3f(0.0f, 56.0f, 25.0f);
     dirLight.specular = vec3f(255.0f, 255.0f, 255.0f);
     dirLight.shininess = 128.0f;
@@ -117,7 +117,7 @@ void MiAGK() {
             //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
 
             //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
-            rasterizer->drawTriangle(testCone.triangles[i], 0xff00ff00, dirLight, true);
+            rasterizer->drawTriangle(testCone.triangles[i], 0xff00ff00, dirLight, false);
             
         }
     }
@@ -143,11 +143,12 @@ void MiAGK() {
     }
     
 
-    vp.rotate(10.0f, vec3f(0.0f, 1.0f, 1.0f));
-    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(2.0f, 0.0f, 0.0f));
+    //vp.rotate(10.0f, vec3f(0.0f, 1.0f, 1.0f));
+    //vp.rotate(45.0f, vec3f(0.0f, 1.0f, 0.0f));
+    vp.scale(vec3f(0.5f, 0.5f, 0.5f));
+    vp.translate(vec3f(-1.0f, -1.0f, 0.0f));
 
-    Cylinder testCylinder = Cylinder(12, 3, 2.0f, 1.0f);
+    Cylinder testCylinder = Cylinder(12, 3, 2.0f, 2.0f);
 
     
     if (drawCylinder) {
@@ -163,28 +164,24 @@ void MiAGK() {
     
     vp.clear();
 
-    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setPerspective(90.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
 
-    vp.rotate(10.0f, vec3f(0.0f, 1.0f, 1.0f));
-    //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(2.0f, -2.2f, 0.0f));
+    vp.scale(vec3f(0.5f, 0.5f, 0.5f));
+    vp.translate(vec3f(1.0f, -1.0f, 0.0f));
+
+    writer->read(TGA, "in2.tga", 512, 512, rasterizer->tmpTxt);
 
     if (drawCylinder) {
         for (int i = 0; i < testCylinder.triangles.size(); i++) {
 
             Triangle processedTriangle = testCylinder.triangles[i];
 
-            processedTriangle.setColors(vp.calculatePointLight(testCylinder.triangles[i].a, testCylinder.triangles[i].normalsA, pointLight),
-                vp.calculatePointLight(testCylinder.triangles[i].b, testCylinder.triangles[i].normalsB, pointLight),
-                vp.calculatePointLight(testCylinder.triangles[i].c, testCylinder.triangles[i].normalsC, pointLight));
-
-            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, false);
+            //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
+            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight, true);
 
         }
     }
-
-    //writer->read(TGA, "in.tga", 256, 256, buffer->color);
     writer->write(TGA, width, height, buffer->color);
 
     delete buffer;
