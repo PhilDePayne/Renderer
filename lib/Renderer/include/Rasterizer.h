@@ -18,9 +18,11 @@ private:
 public:
 
 	std::vector<unsigned int> tmpTxt;
+	std::vector<unsigned int> tmpTxt2;
 
 	Rasterizer(Buffer buf, VertexProcessor& vp) : buffer(buf), vp(vp) {
 		tmpTxt.resize(256 * 256);
+		tmpTxt2.resize(512 * 512);
 	}
 
 	~Rasterizer() {};

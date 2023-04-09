@@ -23,6 +23,8 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, T
 	
 	float l3 = 1 - l1 - l2;
 
+	Vec3<unsigned int> fColor = Vec3<unsigned int>(0, 0, 0);
+
 	if (pixelShading) {
 		vec3f p1 = rawTriangle.a * l1;
 		vec3f p2 = rawTriangle.b * l2;
@@ -38,27 +40,10 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, T
 
 		fn.normalize();
 
-		float u1 = rawTriangle.uvA.first * l1;
-		float u2 = rawTriangle.uvB.first * l2;
-		float u3 = rawTriangle.uvC.first * l3;
-
-		float fu = u1 + u2 + u3;
-
-		int tmpu = changeValue(fu, 0, 256, -2, 2);
-
-		float v1 = rawTriangle.uvA.second * l1;
-		float v2 = rawTriangle.uvB.second * l2;
-		float v3 = rawTriangle.uvC.second * l3;
-
-		float fv = v1 + v2 + v3;
-
-		int tmpv = changeValue(fv, 0, 256, -2, 2);
-
-		int txtIdx = (tmpv * 256) + tmpu;
-
 		//ret.first = vp.calculatePointLight(fp, fn, l);
 		//ret.first = vp.calculateDirLight(fp, fn, l);
-		ret.first = tmpTxt[txtIdx];
+		fColor = rgbFromHex(vp.calculateDirLight(fp, fn, l));
+		
 
 	}
 	else {
@@ -76,6 +61,32 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, T
 		
 
 	}
+
+	float u1 = rawTriangle.uvA.first * l1;
+	float u2 = rawTriangle.uvB.first * l2;
+	float u3 = rawTriangle.uvC.first * l3;
+
+	float fu = u1 + u2 + u3;
+
+	int tmpu = changeValue(fu, 0, 256, -2, 2);
+
+	float v1 = rawTriangle.uvA.second * l1;
+	float v2 = rawTriangle.uvB.second * l2;
+	float v3 = rawTriangle.uvC.second * l3;
+
+	float fv = v1 + v2 + v3;
+
+	int tmpv = changeValue(fv, 0, 256, -2, 2);
+
+	int txtIdx = (tmpv * 256) + tmpu;
+
+	fColor += rgbFromHex(tmpTxt[txtIdx]);
+
+	fColor.x = fColor.x > 255 ? 255 : fColor.x < 0 ? 0 : fColor.x;
+	fColor.y = fColor.y > 255 ? 255 : fColor.y < 0 ? 0 : fColor.y;
+	fColor.z = fColor.z > 255 ? 255 : fColor.z < 0 ? 0 : fColor.z;
+
+	ret.first = hexFromRgb(vec3f((float)fColor.x, (float)fColor.y, (float)fColor.z));
 	ret.second = (l1 * triangle.a.z + l2 * triangle.b.z + l3 * triangle.c.z);
 	return  ret;
 
