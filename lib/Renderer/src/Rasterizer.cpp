@@ -38,8 +38,28 @@ std::pair<unsigned int, float> Rasterizer::interpolateColor(Triangle triangle, T
 
 		fn.normalize();
 
+		float u1 = rawTriangle.uvA.first * l1;
+		float u2 = rawTriangle.uvB.first * l2;
+		float u3 = rawTriangle.uvC.first * l3;
+
+		float fu = u1 + u2 + u3;
+
+		int tmpu = changeValue(fu, 0, 256, -2, 2);
+
+		float v1 = rawTriangle.uvA.second * l1;
+		float v2 = rawTriangle.uvB.second * l2;
+		float v3 = rawTriangle.uvC.second * l3;
+
+		float fv = v1 + v2 + v3;
+
+		int tmpv = changeValue(fv, 0, 256, -2, 2);
+
+		int txtIdx = (tmpv * 256) + tmpu;
+
 		//ret.first = vp.calculatePointLight(fp, fn, l);
-		ret.first = vp.calculateDirLight(fp, fn, l);
+		//ret.first = vp.calculateDirLight(fp, fn, l);
+		ret.first = tmpTxt[txtIdx];
+
 	}
 	else {
 
@@ -112,7 +132,6 @@ void Rasterizer::drawTriangle(Triangle rawTriangle, unsigned int color, Light l,
 
 						buffer.color[bufferWidth * y + x] = d.first;
 						buffer.depth[bufferWidth * y + x] = d.second;
-
 					}
 					
 				}

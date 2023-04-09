@@ -4,6 +4,8 @@
 #include "Ray.h"
 #include "Vec3.h"
 
+#include <utility>
+
 class Triangle : public Primitive{
 
 private:
@@ -11,6 +13,7 @@ private:
 	Vec3<unsigned int> colors;
 
 public:
+	Triangle() {};
 
 	Triangle(Vec3<Vec3<float>> vertices) : a(vertices.x), b(vertices.y), c(vertices.z) {};
 
@@ -28,6 +31,10 @@ public:
 	Vec3<float> normalsA;
 	Vec3<float> normalsB;
 	Vec3<float> normalsC;
+
+	std::pair<float, float> uvA;
+	std::pair<float, float> uvB;
+	std::pair<float, float> uvC;
 
 	Vec3<unsigned int> getColors();
 	void setColors(unsigned int colorA, unsigned int colorB, unsigned int colorC);

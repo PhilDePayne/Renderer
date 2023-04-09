@@ -6,6 +6,7 @@
 #include "Light.h"
 
 #include <utility>
+#include <vector>
 
 class Rasterizer {
 
@@ -16,7 +17,11 @@ private:
 
 public:
 
-	Rasterizer(Buffer buf, VertexProcessor& vp) : buffer(buf), vp(vp) {}
+	std::vector<unsigned int> tmpTxt;
+
+	Rasterizer(Buffer buf, VertexProcessor& vp) : buffer(buf), vp(vp) {
+		tmpTxt.resize(256 * 256);
+	}
 
 	~Rasterizer() {};
 

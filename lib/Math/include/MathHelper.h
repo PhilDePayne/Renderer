@@ -3,6 +3,12 @@
 #include <iostream>
 #include "Vec3.h" 
 
+inline float changeValue(float v, float nMin, float nMax, float oMin, float oMax) {
+
+	return (((v - oMin) * (nMax - nMin)) / (oMax - oMin)) + nMin;
+
+}
+
 inline Vec3<unsigned int> rgbFromHex(unsigned int hex) {
 	return Vec3<unsigned int>((hex & 0x00FF0000) >> 16, (hex & 0x0000FF00) >> 8, (hex & 0x000000FF));
 }

@@ -23,8 +23,9 @@ unsigned int width = 2048;
 unsigned int height = 2048;
 unsigned int color = 0xff7caf31;
 
+bool drawTriangle = false;
 bool drawCone = true;
-bool drawCylinder = true;
+bool drawCylinder = false;
 
 void FGK() {
 
@@ -81,6 +82,8 @@ void MiAGK() {
 
     Rasterizer* rasterizer = new Rasterizer(*buffer, vp);
 
+    writer->read(TGA, "in.tga", 256, 256, rasterizer->tmpTxt);
+
     Light dirLight;
 
     dirLight.position = vec3f(-1.0f, 0.0f, -0.5f);
@@ -104,41 +107,41 @@ void MiAGK() {
     //vp.rotate(0.0f, vec3f(0.0f, 1.0f, 0.0f));
     //vp.rotate(30.0f, vec3f(1.0f, 1.0f, 0.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
-    vp.translate(vec3f(-2.0f, 0.0f, 0.0f));
+    //vp.translate(vec3f(-2.0f, 0.0f, 0.0f));
 
     Cone testCone = Cone(12, 2.0f, 2.0f);
     
     if (drawCone) {
         for (int i = 0; i < testCone.triangles.size(); i++) {
 
-            Triangle processedTriangle = Triangle(Vec3<vec3f>(testCone.triangles[i].a,
-                testCone.triangles[i].b,
-                testCone.triangles[i].c),
-                Vec3<vec3f>(testCone.triangles[i].normalsA, testCone.triangles[i].normalsB, testCone.triangles[i].normalsC));
-
-            Vec3<unsigned int> finalColor;
-            finalColor.x = 0;
-            finalColor.y = 0;
-            finalColor.z = 0;
-
-
-            processedTriangle.setColors(vp.calculatePointLight(testCone.triangles[i].a, testCone.triangles[i].normalsA, pointLight),
-                vp.calculatePointLight(testCone.triangles[i].b, testCone.triangles[i].normalsB, pointLight),
-                vp.calculatePointLight(testCone.triangles[i].c, testCone.triangles[i].normalsC, pointLight));
-
-
             //processedTriangle.setColors(0xffff0000, 0xff00ff00, 0xff0000ff);
 
             //rasterizer->drawTriangle(processedTriangle, 0xff00ff00, pointLight, true);
-            rasterizer->drawTriangle(processedTriangle, 0xff00ff00, dirLight, true);
+            rasterizer->drawTriangle(testCone.triangles[i], 0xff00ff00, dirLight, true);
             
         }
     }
  
     vp.clear();
     
-    vp.setPerspective(120.0f, 1.0f, 0.1f, 100.0f);
+    vp.setPerspective(90.0f, 1.0f, 0.1f, 100.0f);
     vp.setLookAt(vec3f(0.0f, 0.0f, 10.0f), vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+
+    if (drawTriangle) {
+        Triangle tmpT = Triangle(vec3f(0.0f, 1.0f, 0.0f), vec3f(1.0f, 0.0f, 0.0f), vec3f(-1.0f, 0.0f, 0.0f));
+
+        tmpT.normalsA = vec3f(0, 1.0f, 0);
+        tmpT.normalsB = vec3f(0, 1.0f, 0);
+        tmpT.normalsC = vec3f(0, 1.0f, 0);
+
+        tmpT.uvA = std::pair<float, float>(0.0f, 2.0f);
+        tmpT.uvB = std::pair<float, float>(2.0f, 0.0f);
+        tmpT.uvC = std::pair<float, float>(-2.0f, 0.0f);
+
+
+        rasterizer->drawTriangle(tmpT, 0xffffffff, dirLight, true);
+    }
+    
 
     vp.rotate(10.0f, vec3f(0.0f, 1.0f, 1.0f));
     //vp.scale(vec3f(0.1f, 0.1f, 0.1f));
@@ -181,6 +184,7 @@ void MiAGK() {
         }
     }
 
+    //writer->read(TGA, "in.tga", 256, 256, buffer->color);
     writer->write(TGA, width, height, buffer->color);
 
     delete buffer;
