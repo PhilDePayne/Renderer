@@ -1,6 +1,6 @@
 #include "LightIntensity.h"
 
-void LightIntensity::add(double R, double G, double B) {
+void LightIntensity::add(float R, float G, float B) {
 	r += R;
 	g += G;
 	b += B;

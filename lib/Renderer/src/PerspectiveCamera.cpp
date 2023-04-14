@@ -1,4 +1,5 @@
 #include "PerspectiveCamera.h"
+#include "MathHelper.h"
 #include <stdio.h>
 
 PerspectiveCamera::PerspectiveCamera() {
@@ -29,11 +30,9 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 	vec3f w = target;
 	w.normalize();
-	//w = -w; //FIX: negative(?)
 
 	vec3f u = up.cross(w);
 	u.normalize();
-	//u = -u;
 
 	vec3f v = w.cross(u);
 
@@ -51,8 +50,32 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 				if (intersetion.type == IntersectionType::HIT &&
 					intersetion.intersectionPoint1.z < buffer.depth[buffer.getWidth() * j + i]) {
-					buffer.color[buffer.getWidth() * j + i] = intersetion.color;
-					buffer.depth[buffer.getWidth() * j + i] = intersetion.intersectionPoint1.z;
+
+					//LIGHTING
+					for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
+
+						PointLight* currentLight = scene.pointLights[lightNr];
+
+						Ray lightRay = Ray(intersetion.intersectionPoint1, currentLight->position);
+
+						float distance = (lightRay.getOrigin() - currentLight->position).length();
+
+						float lightStrenght = 1 / (currentLight->constAtten *(currentLight->linearAtten * (distance)));
+
+						vec3f finalColor = (currentLight->intensity * lightStrenght).gRgb();
+
+						finalColor = clampRGB(finalColor);
+
+						vec3f itemColor = rgbFromHexF(intersetion.color);
+
+						finalColor += itemColor;
+
+						finalColor = clampRGB(finalColor);
+
+						//buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
+						buffer.color[buffer.getWidth() * j + i] = intersetion.color;
+						buffer.depth[buffer.getWidth() * j + i] = intersetion.intersectionPoint1.z;
+					}
 				}
 			}
 		}
