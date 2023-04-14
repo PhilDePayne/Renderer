@@ -37,10 +37,10 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere* sphere1 = new Sphere(0.7f, 0.0f, 0.0f, 5.0f);
-    Sphere* sphere2 = new Sphere(0.1f, 0.0f, 0.0f, 4.0f);
+    Sphere* sphere1 = new Sphere(0.7f, -1.0f, -1.0f, 5.0f);
+    Sphere* sphere2 = new Sphere(0.7f, 2.0f, 1.0f, 4.0f);
 
-    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, 10.0f));
+    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, 7.0f));
     Plane* p2 = new Plane(vec3f(0.0f, 1.0f, 0.0f), vec3f(0.0f, -3.0f, 0.0f));
     Plane* p3 = new Plane(vec3f(0.0f, -1.0f, 0.0f), vec3f(0.0f, 3.0f, 0.0f));
     Plane* p4 = new Plane(vec3f(1.0f, 0.0f, 0.0f), vec3f(-3.0f, 0.0f, 0.0f));
@@ -58,12 +58,10 @@ void FGK() {
 
     Mesh mesh;
 
-    //mesh.loadObj("Alpaca_1.obj");
-
     Scene scene;
 
     scene.elements.push_back(sphere1);
-    scene.elements.push_back(sphere2);
+    //scene.elements.push_back(sphere2);
     scene.elements.push_back(p1);
     scene.elements.push_back(p2);
     scene.elements.push_back(p3);
@@ -216,7 +214,7 @@ int main()
 {
     FGK();
 
-    test();
+    //test();
 
     //MiAGK();
 
