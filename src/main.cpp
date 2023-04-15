@@ -20,6 +20,7 @@
 #include "MathHelper.h"
 #include "Scene.h"
 #include "PointLight.h"
+#include "Material.h"
 
 unsigned int width = 2048;
 unsigned int height = 2048;
@@ -47,13 +48,34 @@ void FGK() {
     Plane* p4 = new Plane(vec3f(1.0f, 0.0f, 0.0f), vec3f(-3.0f, 0.0f, 0.0f));
     Plane* p5 = new Plane(vec3f(-1.0f, 0.0f, 0.0f), vec3f(3.0f, 0.0f, 0.0f));
 
+    Material sphereMat(vec3f(128.0f, 56.0f, 28.0f), vec3f(128.0f, 56.0f, 28.0f), vec3f(128.0f, 56.0f, 28.0f), 1.0f);
+    Material pbMat(vec3f(0.0f, 0.0f, 128.0f), vec3f(0.0f, 0.0f, 128.0f), vec3f(0.0f, 0.0f, 128.0f), 1.0f);
+    Material phMat(vec3f(0.0f, 128.0f, 0.0f), vec3f(0.0f, 128.0f, 0.0f), vec3f(0.0f, 128.0f, 0.0f), 1.0f);
+    Material pvMat(vec3f(128.0f, 0.0f, 0.0f), vec3f(128.0f, 0.0f, 0.0f), vec3f(128.0f, 0.0f, 0.0f), 1.0f);
+
+    
+    sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
+    pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
+    phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
+    pvMat = Material(vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), 1.0f);
+
     sphere1->color = 0xff12a698;
+    sphere1->material = sphereMat;
+
     sphere2->color = 0xff9812a6;
+
     p1->color = 0xff000080;
+    p1->material = pbMat;
+
     p2->color = 0xff008000;
     p3->color = 0xff008000;
+    p2->material = phMat;
+    p3->material = phMat;
+
     p4->color = 0xff800000;
     p5->color = 0xff800000;
+    p4->material = pvMat;
+    p5->material = pvMat;
 
     Triangle triangle = Triangle(vec3f(0.0f, 1.0f, 1.0f), vec3f(1.0f, 0.0f, 1.0f), vec3f(-1.0f, 0.0f, 1.0f));
 
@@ -70,8 +92,8 @@ void FGK() {
     scene.elements.push_back(p5);
 
     PointLight* pLight = new PointLight();
-    pLight->position = vec3f(2.0f, -1.0f, 0.0f);
-    pLight->intensity = LightIntensity(128.0f, 128.0f, 128.0f);
+    pLight->position = vec3f(-2.0f, -1.0f, 0.0f);
+    pLight->intensity = LightIntensity(255.0f, 255.0f, 255.0f);
 
     scene.pointLights.push_back(pLight);
 

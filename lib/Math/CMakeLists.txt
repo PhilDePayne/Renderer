@@ -14,7 +14,7 @@ set(MATH_SOURCE_FILES
  "include/Torus.h" "src/Torus.cpp"
  "include/Mesh.h" "src/Mesh.cpp" 
  "include/MathHelper.h"
- )
+ "include/Material.h" "src/Material.cpp")
 
 add_library(Math ${MATH_SOURCE_FILES})
 

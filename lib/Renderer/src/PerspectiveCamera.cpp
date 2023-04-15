@@ -91,18 +91,42 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 						}
 
 						if (!isObstructed) {
-							
-							float attenuation = 1 / (currentLight.constAtten * (currentLight.linearAtten * (distance)));
 
-							vec3f finalColor = (currentLight.intensity * attenuation).gRgb();
+							//LIGHTS
+							float attenuation = 1 / (currentLight.constAtten * 
+													(currentLight.linearAtten * (distance)) * 
+													(currentLight.quadAtten * powf(distance, 2.0f)));
 
-							finalColor = clampRGB(finalColor);
+							vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
 
-							vec3f itemColor = rgbFromHexF(intersetion.color);
+							lightColor = clampRGB(lightColor);
 
-							finalColor += itemColor;
+							//PHONG
+								//DIFFUSE
+							vec3f L = lightRay.getDirection();
+							vec3f N; //TODO: remove dynamic_cast
+							if (dynamic_cast<Sphere*>(scene.elements[k])) {
+								N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
+							}
+							else {
+								N = dynamic_cast<Plane*>(scene.elements[k])->getNormal();
+							}
 
-							finalColor = clampRGB(finalColor);
+							vec3f diffuse = scene.elements[k]->material.diffuse * (L.dot(N));
+							diffuse = clampRGB(diffuse);
+
+								//SPECULAR
+							vec3f R = L - (N * N.dot(L) * 2.0f);
+
+							vec3f finalColor = lightColor * (diffuse);
+
+							//vec3f itemColor = rgbFromHexF(intersetion.color);
+
+							//vec3f finalColor = lightColor + itemColor;
+
+							//finalColor *= itemColor;
+
+							//finalColor = clampRGB(finalColor);
 
 							buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
 							//buffer.color[buffer.getWidth() * j + i] = intersetion.color;

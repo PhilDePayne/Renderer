@@ -25,6 +25,14 @@ void Vec3<float>::operator-=(const Vec3<float>& v) {
 
 }
 
+void Vec3<float>::operator*=(const Vec3<float>& v) {
+
+	this->x *= v.x;
+	this->y *= v.y;
+	this->z *= v.z;
+
+}
+
 Vec3<float> Vec3<float>::operator-(const Vec3<float>& v) {
 
 	return Vec3<float>(x - v.x, y - v.y, z - v.z);
@@ -46,6 +54,12 @@ Vec3<float> Vec3<float>::operator+(const Vec3<float>& v) {
 Vec3<float> Vec3<float>::operator*(const float& v) {
 
 	return Vec3<float>(x * v, y * v, z * v);
+
+}
+
+Vec3<float> Vec3<float>::operator*(const Vec3<float>& v) {
+
+	return Vec3<float>(x * v.x, y * v.y, z * v.z);
 
 }
 
