@@ -23,9 +23,6 @@ PerspectiveCamera::PerspectiveCamera(vec3f position, vec3f target) {
 
 void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
-	int shadows = 0;
-	int totals = 0;
-
 	float widthPixel = 2.0f / buffer.getWidth();
 	float heightPixel = 2.0f / buffer.getHeight();
 
@@ -57,7 +54,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 				if (intersetion.type == IntersectionType::HIT &&
 					intersetion.intersectionPoint1.z < buffer.depth[buffer.getWidth() * j + i]) {
 
-					 ambient = scene.elements[k]->material.ambient * 0.1f;
+					ambient = scene.elements[k]->material.ambient * 0.1f;
 
 					//LIGHTING
 					for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
@@ -69,6 +66,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 						float distance = (lightRay.getOrigin() - currentLight.position).length();
 
+						//SHADOWS
 						bool isObstructed = false;
 
 						IntersectionResult obstruction;
@@ -95,75 +93,176 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 						if (!isObstructed) {
 
-							//LIGHTS
-							float attenuation = 1 / (currentLight.constAtten * 
-													(currentLight.linearAtten * (distance)) * 
-													(currentLight.quadAtten * powf(distance, 2.0f)));
+							switch (scene.elements[k]->material.matType) {
 
-							vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
+							case MaterialType::MAT:
+							{
+								//LIGHTS
+								float attenuation = 1 / (currentLight.constAtten *
+									(currentLight.linearAtten * (distance)) *
+									(currentLight.quadAtten * powf(distance, 2.0f)));
 
-							lightColor = clampRGB(lightColor);
+								vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
 
-							//PHONG							
+								lightColor = clampRGB(lightColor);
 
-								//DIFFUSE
-							vec3f L = lightRay.getDirection();
-							L.normalize();
-							vec3f N; //TODO: remove dynamic_cast
-							if (dynamic_cast<Sphere*>(scene.elements[k])) {
-								N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
-							}
-							else {
-								N = dynamic_cast<Plane*>(scene.elements[k])->getNormal();
-							}
+								//PHONG							
 
-							vec3f diffuse = scene.elements[k]->material.diffuse * (L.dot(N));
-							diffuse = clampRGB(diffuse);
+									//DIFFUSE
+								vec3f L = lightRay.getDirection();
+								L.normalize();
+								vec3f N; //TODO: remove dynamic_cast
+								if (dynamic_cast<Sphere*>(scene.elements[k])) {
+									N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
+								}
+								else {
+									N = dynamic_cast<Plane*>(scene.elements[k])->getNormal();
+								}
+
+								vec3f diffuse = scene.elements[k]->material.diffuse * (L.dot(N));
+								diffuse = clampRGB(diffuse);
 
 								//SPECULAR
-							vec3f R = L - (N * N.dot(L) * 2.0f);
-							vec3f V = ray.getDirection();
+								vec3f R = L - (N * N.dot(L) * 2.0f);
+								vec3f V = ray.getDirection();
 
-							float specularStrength;
-							float ss = R.dot(V);
+								float specularStrength;
+								float ss = R.dot(V);
 
-							if (ss > 0) {
-								specularStrength = powf(ss, scene.elements[k]->material.shininess);
+								if (-ss > 0) {
+									specularStrength = powf(ss, scene.elements[k]->material.shininess);
+								}
+								else {
+									specularStrength = 0.0f;
+								}
+
+								vec3f specular = scene.elements[k]->material.specular * specularStrength;
+								specular = clampRGB(specular);
+
+								vec3f finalColor = lightColor * (ambient + diffuse + specular);
+								finalColor = clampRGB(finalColor);
+
+								buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
+
+								break;
 							}
-							else {
-								specularStrength = 0.0f;
+
+							case MaterialType::REFLECTIVE:
+							{
+								//CREATE REFLECTED RAY
+								vec3f L1 = ray.getDirection();
+								L1.normalize();
+
+								vec3f N1; //TODO: remove dynamic_cast
+								if (dynamic_cast<Sphere*>(scene.elements[k])) {
+									N1 = ray.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
+								}
+								else {
+									N1 = dynamic_cast<Plane*>(scene.elements[k])->getNormal();
+								}
+
+								vec3f R1 = L1 - (N1 * N1.dot(L1) * 2.0f);
+								R1.normalize();
+
+								Ray reflectedRay = Ray(intersetion.intersectionPoint1, R1);
+
+								IntersectionResult secondIntersection;
+								float minDistance = INFINITY;
+								int reflectedObjIdx = 0;
+
+								for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
+
+									//OMIT REFLECTIVE OBJECT
+									if (recurrentObjNr != k) {
+
+										//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
+										IntersectionResult tmp;
+										tmp = scene.elements[recurrentObjNr]->hit(reflectedRay, false);
+
+										if (tmp.type == IntersectionType::HIT) {
+											float distance = (tmp.intersectionPoint1 - reflectedRay.getOrigin()).length();
+
+											if (distance < minDistance) {
+												reflectedObjIdx = recurrentObjNr;
+												secondIntersection = tmp;
+												minDistance = distance;
+											}
+										}
+									}
+								}
+
+								//CALCULATE REFLECTED PHONG
+								//TODO: calculatePhong() function
+								//LIGHTS
+								Ray secondRay = Ray(secondIntersection.intersectionPoint1,
+									currentLight.position.x, currentLight.position.y, currentLight.position.z);
+
+								distance = (secondRay.getOrigin() - currentLight.position).length();
+								float attenuation = 1 / (currentLight.constAtten *
+									(currentLight.linearAtten * (distance)) *
+									(currentLight.quadAtten * powf(distance, 2.0f)));
+
+								vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
+
+								lightColor = clampRGB(lightColor);
+
+								//PHONG							
+
+									//DIFFUSE
+								vec3f L = secondRay.getDirection();
+								L.normalize();
+								vec3f N; //TODO: remove dynamic_cast
+								if (dynamic_cast<Sphere*>(scene.elements[reflectedObjIdx])) {
+									N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[reflectedObjIdx])->getCenter();
+								}
+								else {
+									N = dynamic_cast<Plane*>(scene.elements[reflectedObjIdx])->getNormal();
+								}
+
+								vec3f diffuse = scene.elements[reflectedObjIdx]->material.diffuse * (L.dot(N));
+								diffuse = clampRGB(diffuse);
+
+								//SPECULAR
+								vec3f R = L - (N * N.dot(L) * 2.0f);
+								vec3f V = secondRay.getDirection();
+
+								float specularStrength;
+								float ss = R.dot(V);
+
+								if (-ss > 0) {
+									specularStrength = powf(ss, scene.elements[reflectedObjIdx]->material.shininess);
+								}
+								else {
+									specularStrength = 0.0f;
+								}
+
+								vec3f specular = scene.elements[reflectedObjIdx]->material.specular * specularStrength;
+								specular = clampRGB(specular);
+
+								vec3f finalColor = lightColor * (ambient + diffuse + specular);
+								finalColor = clampRGB(finalColor);
+
+								buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
+
+								break; 
 							}
 
-							vec3f specular = scene.elements[k]->material.specular * specularStrength;
-							specular = clampRGB(specular);
-
-							vec3f finalColor = lightColor * (ambient + diffuse + specular);
-							finalColor = clampRGB(finalColor);
-
-							//vec3f itemColor = rgbFromHexF(intersetion.color);
-
-							//vec3f finalColor = lightColor + itemColor;
-
-							//finalColor *= itemColor;
-
-							//finalColor = clampRGB(finalColor);
-
-							buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
-							//buffer.color[buffer.getWidth() * j + i] = intersetion.color;
+							case MaterialType::REFRACTIVE:
+							{
+								break; 
+							}
+							}
 						}
 						else {
 							buffer.color[buffer.getWidth() * j + i] = hexFromRgb(ambient);
-							shadows++;
 						}
 						
-						totals++;
 						buffer.depth[buffer.getWidth() * j + i] = intersetion.intersectionPoint1.z;
 					}
 				}
 			}
 		}
 	}
-	printf("%d %d", shadows, totals);
 }
 
 void PerspectiveCamera::render(Buffer buffer, Sphere sphere) {

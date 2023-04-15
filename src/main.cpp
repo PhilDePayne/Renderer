@@ -39,25 +39,23 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere* sphere1 = new Sphere(0.7f, 2.0f, 1.0f, 5.0f);
+    Sphere* sphere1 = new Sphere(0.7f, 2.0f, -2.0f, 5.0f);
     Sphere* sphere2 = new Sphere(0.7f, 2.0f, 1.0f, 4.0f);
 
     Plane* p1 = new Plane(vec3f(0.0f, 0.0f, -1.0f), vec3f(0.0f, 0.0f, 7.0f));
+    Plane* p6 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, -7.0f));
     Plane* p2 = new Plane(vec3f(0.0f, 1.0f, 0.0f), vec3f(0.0f, -3.0f, 0.0f));
     Plane* p3 = new Plane(vec3f(0.0f, -1.0f, 0.0f), vec3f(0.0f, 3.0f, 0.0f));
     Plane* p4 = new Plane(vec3f(1.0f, 0.0f, 0.0f), vec3f(-3.0f, 0.0f, 0.0f));
     Plane* p5 = new Plane(vec3f(-1.0f, 0.0f, 0.0f), vec3f(3.0f, 0.0f, 0.0f));
 
-    Material sphereMat(vec3f(128.0f, 56.0f, 28.0f), vec3f(128.0f, 56.0f, 28.0f), vec3f(128.0f, 56.0f, 28.0f), 1.0f);
-    Material pbMat(vec3f(0.0f, 0.0f, 128.0f), vec3f(0.0f, 0.0f, 128.0f), vec3f(0.0f, 0.0f, 128.0f), 1.0f);
-    Material phMat(vec3f(0.0f, 128.0f, 0.0f), vec3f(0.0f, 128.0f, 0.0f), vec3f(0.0f, 128.0f, 0.0f), 1.0f);
-    Material pvMat(vec3f(128.0f, 0.0f, 0.0f), vec3f(128.0f, 0.0f, 0.0f), vec3f(128.0f, 0.0f, 0.0f), 1.0f);
-
     
-    sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
-    pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
-    phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
-    pvMat = Material(vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), 1.0f);
+    Material sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
+    sphereMat.matType = REFLECTIVE;
+    Material pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
+    Material pfMat = Material(vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), 1.0f);
+    Material phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
+    Material pvMat = Material(vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), 1.0f);
 
     sphere1->color = 0xff12a698;
     sphere1->material = sphereMat;
@@ -66,6 +64,7 @@ void FGK() {
 
     p1->color = 0xff000080;
     p1->material = pbMat;
+    p6->material = pfMat;
 
     p2->color = 0xff008000;
     p3->color = 0xff008000;
@@ -90,9 +89,10 @@ void FGK() {
     scene.elements.push_back(p3);
     scene.elements.push_back(p4);
     scene.elements.push_back(p5);
+    scene.elements.push_back(p6);
 
     PointLight* pLight = new PointLight();
-    pLight->position = vec3f(-2.0f, -1.0f, 5.0f);
+    pLight->position = vec3f(0.0f, 0.0f, -2.0f);
     pLight->intensity = LightIntensity(255.0f, 255.0f, 255.0f);
 
     scene.pointLights.push_back(pLight);
