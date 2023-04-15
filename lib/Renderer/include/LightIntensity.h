@@ -1,23 +1,26 @@
 #pragma once
 
+#include "Vec3.h"
+
 class LightIntensity
 {
 protected:
-	double r, g, b;
+	float r, g, b;
 
 public:
-	LightIntensity(double R, double G, double B) { r = R; g = G; b = B; }
-	LightIntensity(double R, double G) { r = R; g = G; b = 0.0; }
-	LightIntensity(double R) { r = R; g = b = 0.0; }
+	LightIntensity(float R, float G, float B) { r = R; g = G; b = B; }
+	LightIntensity(float R, float G) { r = R; g = G; b = 0.0; }
+	LightIntensity(float R) { r = R; g = b = 0.0; }
 	LightIntensity() { r = g = b = 0.0; }
-	double gRed() { return r; }
-	double gGreen() { return g; }
-	double gBlue() { return b; }
+	float gRed() { return r; }
+	float gGreen() { return g; }
+	float gBlue() { return b; }
+	vec3f gRgb() { return vec3f(r, g, b); }
 	void operator()(float R, float G, float B) { r = R; g = G; b = B; }
 	void operator()(float R, float G) { r = R; g = G; b = 0.0; }
 	void operator()(float R) { r = R; g = b = 0.0; }
 
-	void add(double R, double G, double B);
+	void add(float R, float G, float B);
 
 	LightIntensity operator+(LightIntensity& li);
 	LightIntensity operator-(LightIntensity& li);

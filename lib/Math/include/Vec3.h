@@ -19,10 +19,12 @@ public:
 
 	void operator+=(const Vec3& v);
 	void operator-=(const Vec3& v);
+	void operator*=(const Vec3& v);
 	Vec3 operator-(const Vec3& v);
 	Vec3 operator-();
 	Vec3 operator+(const Vec3& v);
 	Vec3 operator*(const float& v);
+	Vec3 operator*(const Vec3& v);
 
 	T& operator[](const int& x) {
 

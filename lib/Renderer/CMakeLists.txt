@@ -7,7 +7,8 @@ set(RASTERIZER_SOURCE_FILES
 	"include/LightIntensity.h" "src/LightIntensity.cpp" 
 	"include/PerspectiveCamera.h" "src/PerspectiveCamera.cpp"
 	"include/Scene.h" "src/Scene.cpp"
-	"include/Light.h" "src/Light.cpp")
+	"include/Light.h" "src/Light.cpp" 
+	"include/PointLight.h" "src/PointLight.cpp")
 
 add_library(Rasterizer ${RASTERIZER_SOURCE_FILES})
 

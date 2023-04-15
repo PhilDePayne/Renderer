@@ -22,5 +22,5 @@ public:
 	Vec3<float> getP() const;
 	void setP(Vec3<float> p);
 
-	IntersectionResult hit(Ray ray) override;
+	IntersectionResult hit(Ray ray, bool debug) override;
 };

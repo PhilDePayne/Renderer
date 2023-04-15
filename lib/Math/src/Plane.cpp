@@ -30,7 +30,7 @@ void Plane::setP(Vec3<float> p) {
 
 }
 
-IntersectionResult Plane::hit(Ray ray)
+IntersectionResult Plane::hit(Ray ray, bool debug)
 {
 	IntersectionResult ret;
 	ret.type = IntersectionType::MISS;
@@ -48,6 +48,11 @@ IntersectionResult Plane::hit(Ray ray)
 			ret.type = IntersectionType::HIT;
 			ret.intersections += 1;
 			ret.intersectionPoint1 = ray.getOrigin() + (ray.getDirection() * t);
+			ret.color = color;
+
+			if (debug) {
+				printf("HIT\n");
+			}
 
 			return ret;
 		}
