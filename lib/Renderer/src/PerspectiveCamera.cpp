@@ -102,8 +102,12 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 							lightColor = clampRGB(lightColor);
 
 							//PHONG
+								//AMBIENT
+							vec3f ambient = scene.elements[k]->material.ambient * 0.1f;
+
 								//DIFFUSE
 							vec3f L = lightRay.getDirection();
+							L.normalize();
 							vec3f N; //TODO: remove dynamic_cast
 							if (dynamic_cast<Sphere*>(scene.elements[k])) {
 								N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
@@ -117,8 +121,23 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 								//SPECULAR
 							vec3f R = L - (N * N.dot(L) * 2.0f);
+							vec3f V = ray.getDirection();
 
-							vec3f finalColor = lightColor * (diffuse);
+							float specularStrength;
+							float ss = R.dot(V);
+
+							if (ss > 0) {
+								specularStrength = powf(ss, scene.elements[k]->material.shininess);
+							}
+							else {
+								specularStrength = 0.0f;
+							}
+
+							vec3f specular = scene.elements[k]->material.specular * specularStrength;
+							specular = clampRGB(specular);
+
+							vec3f finalColor = lightColor * (ambient + diffuse + specular);
+							finalColor = clampRGB(finalColor);
 
 							//vec3f itemColor = rgbFromHexF(intersetion.color);
 
