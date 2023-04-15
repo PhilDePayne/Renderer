@@ -92,7 +92,7 @@ void FGK() {
     scene.elements.push_back(p5);
 
     PointLight* pLight = new PointLight();
-    pLight->position = vec3f(-2.0f, -1.0f, 0.0f);
+    pLight->position = vec3f(-2.0f, -1.0f, 5.0f);
     pLight->intensity = LightIntensity(255.0f, 255.0f, 255.0f);
 
     scene.pointLights.push_back(pLight);

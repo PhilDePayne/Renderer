@@ -48,6 +48,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 			centerX = -1.0f + (i + 0.5f) * widthPixel;
 			centerY = 1.0f - (j + 0.5f) * heightPixel;
 			Ray ray = Ray(position, (u * centerX + v * centerY + w));
+			vec3f ambient;
 
 			for (int k = 0; k < scene.elements.size(); k++) {
 
@@ -55,6 +56,8 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 				if (intersetion.type == IntersectionType::HIT &&
 					intersetion.intersectionPoint1.z < buffer.depth[buffer.getWidth() * j + i]) {
+
+					 ambient = scene.elements[k]->material.ambient * 0.1f;
 
 					//LIGHTING
 					for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
@@ -101,9 +104,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 							lightColor = clampRGB(lightColor);
 
-							//PHONG
-								//AMBIENT
-							vec3f ambient = scene.elements[k]->material.ambient * 0.1f;
+							//PHONG							
 
 								//DIFFUSE
 							vec3f L = lightRay.getDirection();
@@ -151,7 +152,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 							//buffer.color[buffer.getWidth() * j + i] = intersetion.color;
 						}
 						else {
-							buffer.color[buffer.getWidth() * j + i] = 0xff000000;
+							buffer.color[buffer.getWidth() * j + i] = hexFromRgb(ambient);
 							shadows++;
 						}
 						
