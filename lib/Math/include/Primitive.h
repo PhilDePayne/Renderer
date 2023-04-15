@@ -12,6 +12,6 @@ public:
 
 	~Primitive() {};
 
-	virtual IntersectionResult hit(Ray ray) = 0;
+	virtual IntersectionResult hit(Ray ray, bool debug) = 0;
 
 };

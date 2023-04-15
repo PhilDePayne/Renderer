@@ -38,7 +38,7 @@ void Sphere::setRadius(float r) {
 
 };
 
-IntersectionResult Sphere::hit(Ray ray) {
+IntersectionResult Sphere::hit(Ray ray, bool debug) {
 
 	IntersectionResult ret;
 	ret.type = IntersectionType::MISS;

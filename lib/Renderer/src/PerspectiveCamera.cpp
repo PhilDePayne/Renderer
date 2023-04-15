@@ -1,5 +1,6 @@
 #include "PerspectiveCamera.h"
 #include "MathHelper.h"
+#include "Plane.h"
 #include <stdio.h>
 
 PerspectiveCamera::PerspectiveCamera() {
@@ -22,6 +23,9 @@ PerspectiveCamera::PerspectiveCamera(vec3f position, vec3f target) {
 
 void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
+	int shadows = 0;
+	int totals = 0;
+
 	float widthPixel = 2.0f / buffer.getWidth();
 	float heightPixel = 2.0f / buffer.getHeight();
 
@@ -35,6 +39,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 	u.normalize();
 
 	vec3f v = w.cross(u);
+	v = -v;
 
 	for (int i = 0; i < buffer.getWidth(); i++)
 	{
@@ -46,7 +51,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 			for (int k = 0; k < scene.elements.size(); k++) {
 
-				IntersectionResult intersetion = scene.elements[k]->hit(ray);
+				IntersectionResult intersetion = scene.elements[k]->hit(ray, false);
 
 				if (intersetion.type == IntersectionType::HIT &&
 					intersetion.intersectionPoint1.z < buffer.depth[buffer.getWidth() * j + i]) {
@@ -54,33 +59,67 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 					//LIGHTING
 					for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
 
-						PointLight* currentLight = scene.pointLights[lightNr];
+						PointLight& currentLight = *scene.pointLights[lightNr];
 
-						Ray lightRay = Ray(intersetion.intersectionPoint1, currentLight->position);
+						Ray lightRay = Ray(intersetion.intersectionPoint1, 
+							currentLight.position.x, currentLight.position.y, currentLight.position.z);
 
-						float distance = (lightRay.getOrigin() - currentLight->position).length();
+						float distance = (lightRay.getOrigin() - currentLight.position).length();
 
-						float lightStrenght = 1 / (currentLight->constAtten *(currentLight->linearAtten * (distance)));
+						bool isObstructed = false;
 
-						vec3f finalColor = (currentLight->intensity * lightStrenght).gRgb();
+						IntersectionResult obstruction;
 
-						finalColor = clampRGB(finalColor);
+						for (int obstructionNr = 0; obstructionNr < scene.elements.size(); obstructionNr++) {
 
-						vec3f itemColor = rgbFromHexF(intersetion.color);
+							if (obstructionNr != k) {
 
-						finalColor += itemColor;
+								//IntersectionResult obstruction = scene.elements[obstructionNr]->hit(lightRay, true); //TODO: ???
+								obstruction = scene.elements[obstructionNr]->hit(lightRay, false);
 
-						finalColor = clampRGB(finalColor);
+								if (obstruction.type == IntersectionType::HIT) {	
 
-						//buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
-						buffer.color[buffer.getWidth() * j + i] = intersetion.color;
+									float obstructionDistance = (lightRay.getOrigin() - obstruction.intersectionPoint1).length();
+
+									if (obstructionDistance < distance) {
+										isObstructed = true;
+										break;
+									}
+
+								}
+							}
+						}
+
+						if (!isObstructed) {
+							
+							float attenuation = 1 / (currentLight.constAtten * (currentLight.linearAtten * (distance)));
+
+							vec3f finalColor = (currentLight.intensity * attenuation).gRgb();
+
+							finalColor = clampRGB(finalColor);
+
+							vec3f itemColor = rgbFromHexF(intersetion.color);
+
+							finalColor += itemColor;
+
+							finalColor = clampRGB(finalColor);
+
+							buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
+							//buffer.color[buffer.getWidth() * j + i] = intersetion.color;
+						}
+						else {
+							buffer.color[buffer.getWidth() * j + i] = 0xff000000;
+							shadows++;
+						}
+						
+						totals++;
 						buffer.depth[buffer.getWidth() * j + i] = intersetion.intersectionPoint1.z;
 					}
 				}
 			}
 		}
 	}
-
+	printf("%d %d", shadows, totals);
 }
 
 void PerspectiveCamera::render(Buffer buffer, Sphere sphere) {
@@ -109,7 +148,7 @@ void PerspectiveCamera::render(Buffer buffer, Sphere sphere) {
 			centerY = 1.0f - (j + 0.5f) * heightPixel;
 			Ray ray = Ray(position, (u * centerX + v * centerY + w));
 			//printf("\n %f %f %f", (u * centerX + v * centerY + w).x, (u * centerX + v * centerY + w).y, (u * centerX + v * centerY + w).z);
-			IntersectionResult intersetion = sphere.hit(ray); //TODO: magic numbers
+			IntersectionResult intersetion = sphere.hit(ray, false); //TODO: magic numbers
 
 			if (intersetion.type == IntersectionType::HIT) {
 				buffer.color[buffer.getWidth() * j + i] = 0xff00ff00;
@@ -144,7 +183,7 @@ void PerspectiveCamera::render(Buffer buffer, Triangle triangle) {
 			centerX = -1.0f + (i + 0.5f) * widthPixel;
 			centerY = 1.0f - (j + 0.5f) * heightPixel;
 			Ray ray = Ray(position, (u * centerX + v * centerY + w));
-			IntersectionResult intersetion = triangle.hit(ray); //TODO: magic numbers
+			IntersectionResult intersetion = triangle.hit(ray, false); //TODO: magic numbers
 
 			if (intersetion.type == IntersectionType::HIT) {
 				buffer.color[buffer.getWidth() * j + i] = 0xff00ff00;
@@ -181,7 +220,7 @@ void PerspectiveCamera::render(Buffer buffer, Mesh mesh) { //TODO: render for pr
 				centerX = -1.0f + (i + 0.5f) * widthPixel;
 				centerY = 1.0f - (j + 0.5f) * heightPixel;
 				Ray ray = Ray(position, (u * centerX + v * centerY + w));
-				IntersectionResult intersetion = mesh.triangles[x].hit(ray);
+				IntersectionResult intersetion = mesh.triangles[x].hit(ray, false);
 
 				if (intersetion.type == IntersectionType::HIT) {
 					buffer.color[buffer.getWidth() * j + i] = 0xff00ff00;

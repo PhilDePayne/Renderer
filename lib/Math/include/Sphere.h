@@ -24,6 +24,6 @@ public:
 	float getRadius() const;
 	void setRadius(float r);
 
-	IntersectionResult hit(Ray ray) override;
+	IntersectionResult hit(Ray ray, bool debug) override;
 
 };

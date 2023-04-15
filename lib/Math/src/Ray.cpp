@@ -10,6 +10,8 @@ Ray::Ray(Vec3<float> origin, float x, float y, float z) : origin(origin) {
 	direction.y = point.y;
 	direction.z = point.z;
 
+	direction.normalize();
+
 };
 
 Vec3<float> Ray::getOrigin() const {

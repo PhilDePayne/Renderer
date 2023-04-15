@@ -14,7 +14,7 @@ void Triangle::setColors(unsigned int colorA, unsigned int colorB, unsigned int 
 
 };
 
-IntersectionResult Triangle::hit(Ray ray) {
+IntersectionResult Triangle::hit(Ray ray, bool debug) {
 
 	IntersectionResult ret;
 	ret.type = IntersectionType::MISS;

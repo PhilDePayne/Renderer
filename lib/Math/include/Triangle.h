@@ -39,7 +39,7 @@ public:
 	Vec3<unsigned int> getColors();
 	void setColors(unsigned int colorA, unsigned int colorB, unsigned int colorC);
 
-	IntersectionResult hit(Ray ray) override;
+	IntersectionResult hit(Ray ray, bool debug) override;
 
 
 };

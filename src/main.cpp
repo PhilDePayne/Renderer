@@ -38,10 +38,10 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere* sphere1 = new Sphere(0.7f, -1.0f, -1.0f, 5.0f);
+    Sphere* sphere1 = new Sphere(0.7f, 2.0f, 1.0f, 5.0f);
     Sphere* sphere2 = new Sphere(0.7f, 2.0f, 1.0f, 4.0f);
 
-    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, 7.0f));
+    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, -1.0f), vec3f(0.0f, 0.0f, 7.0f));
     Plane* p2 = new Plane(vec3f(0.0f, 1.0f, 0.0f), vec3f(0.0f, -3.0f, 0.0f));
     Plane* p3 = new Plane(vec3f(0.0f, -1.0f, 0.0f), vec3f(0.0f, 3.0f, 0.0f));
     Plane* p4 = new Plane(vec3f(1.0f, 0.0f, 0.0f), vec3f(-3.0f, 0.0f, 0.0f));
@@ -70,7 +70,7 @@ void FGK() {
     scene.elements.push_back(p5);
 
     PointLight* pLight = new PointLight();
-    pLight->position = vec3f(0.0f, 0.0f, 0.0f);
+    pLight->position = vec3f(2.0f, -1.0f, 0.0f);
     pLight->intensity = LightIntensity(128.0f, 128.0f, 128.0f);
 
     scene.pointLights.push_back(pLight);
@@ -213,7 +213,13 @@ void MiAGK() {
 
 void test() {
 
-    
+    Sphere* sphere1 = new Sphere(0.7f, 2.0f, 1.0f, 5.0f);
+    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, 7.0f));
+    Ray ray = Ray(sphere1->getCenter(), 0, 0, -1.0f);
+
+    IntersectionResult hit = p1->hit(ray, false);
+
+    if (hit.type == IntersectionType::HIT) printf("HIT");
 
 }
 
@@ -224,6 +230,4 @@ int main()
     //test();
 
     //MiAGK();
-
-    printf("\n %d", color);
 }
