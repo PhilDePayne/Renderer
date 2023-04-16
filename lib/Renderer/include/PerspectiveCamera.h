@@ -19,6 +19,7 @@ private:
 	float nearPlane;
 	float farPlane;
 	float fov;
+	float maxReps = 2;
 
 public:
 
@@ -28,8 +29,8 @@ public:
 
 	vec3f calculatePhong(PointLight & currentLight, Ray & ray, Ray & lightRay, vec3f & ambient, Scene & scene, int objIdx);
 
-	std::pair<vec3f, float> reflectRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx);
-	std::pair<vec3f, float> refractRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx);
+	std::pair<vec3f, float> reflectRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx, int nr);
+	std::pair<vec3f, float> refractRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx, int nr);
 
 	void render(Buffer buffer, Scene scene);
 	void render(Buffer buffer, Sphere sphere);

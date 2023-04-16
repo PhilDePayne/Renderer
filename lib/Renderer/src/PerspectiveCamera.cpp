@@ -23,7 +23,7 @@ PerspectiveCamera::PerspectiveCamera(vec3f position, vec3f target) {
 	up = vec3f(0, 1, 0);
 }
 
-std::pair<vec3f, float> PerspectiveCamera::reflectRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx) {
+std::pair<vec3f, float> PerspectiveCamera::reflectRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx, int nr) {
 	//CREATE REFLECTED RAY
 	vec3f L1 = ray.getDirection();
 	L1 = -L1;
@@ -69,13 +69,22 @@ std::pair<vec3f, float> PerspectiveCamera::reflectRay(Ray& ray, Scene& scene, In
 		}
 	}
 	
-	if (scene.elements[reflectedObjIdx]->material.matType == MaterialType::REFRACTIVE) {
-		return refractRay(reflectedRay, scene, secondIntersection, reflectedObjIdx);
+	if (nr <= maxReps) {
+		if (scene.elements[reflectedObjIdx]->material.matType == MaterialType::REFRACTIVE) {
+			return refractRay(reflectedRay, scene, secondIntersection, reflectedObjIdx, nr++);
+		}
+		else if (scene.elements[reflectedObjIdx]->material.matType == MaterialType::REFLECTIVE) {
+			return reflectRay(reflectedRay, scene, secondIntersection, reflectedObjIdx, nr++);
+		}
+		else {
+			return std::pair<vec3f, int>(secondIntersection.intersectionPoint1, reflectedObjIdx);
+		}
+	} else {
+		return std::pair<vec3f, int>(secondIntersection.intersectionPoint1, reflectedObjIdx);
 	}
-	return std::pair<vec3f, int>(secondIntersection.intersectionPoint1, reflectedObjIdx);
 }
 
-std::pair<vec3f, float> PerspectiveCamera::refractRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx) {
+std::pair<vec3f, float> PerspectiveCamera::refractRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx, int nr) {
 	//CREATE REFRACTED RAY
 	float refractionIndex = scene.elements[elementIdx]->material.IoR;
 
@@ -165,7 +174,22 @@ std::pair<vec3f, float> PerspectiveCamera::refractRay(Ray& ray, Scene& scene, In
 			}
 		}
 	}
-	return std::pair<vec3f, float>(secondIntersection.intersectionPoint1, refractedObjIdx);
+
+	if (nr <= maxReps) {
+		if (scene.elements[refractedObjIdx]->material.matType == MaterialType::REFRACTIVE) {
+			return refractRay(refractedRay1, scene, secondIntersection, refractedObjIdx, nr++);
+		}
+		else if (scene.elements[refractedObjIdx]->material.matType == MaterialType::REFLECTIVE) {
+			return reflectRay(refractedRay1, scene, secondIntersection, refractedObjIdx, nr++);
+		}
+		else {
+			return std::pair<vec3f, float>(secondIntersection.intersectionPoint1, refractedObjIdx);
+		}
+	}
+	else {
+		return std::pair<vec3f, float>(secondIntersection.intersectionPoint1, refractedObjIdx);
+	}
+	
 }
 
 vec3f PerspectiveCamera::calculatePhong(PointLight& currentLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx) {
@@ -326,7 +350,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 					case MaterialType::REFLECTIVE:
 					{
-						std::pair<vec3f, float> reflectedRayInfo = reflectRay(ray, scene, intersetion, closestIdx);
+						std::pair<vec3f, float> reflectedRayInfo = reflectRay(ray, scene, intersetion, closestIdx, 1);
 
 						Ray secondRay = Ray(reflectedRayInfo.first,
 							currentLight.position.x, currentLight.position.y, currentLight.position.z);
@@ -340,7 +364,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 					case MaterialType::REFRACTIVE:
 					{
-						std::pair<vec3f, float> refractedRayInfo = refractRay(ray, scene, intersetion, closestIdx);
+						std::pair<vec3f, float> refractedRayInfo = refractRay(ray, scene, intersetion, closestIdx, 1);
 						
 						Ray secondRay = Ray(refractedRayInfo.first,
 							currentLight.position.x, currentLight.position.y, currentLight.position.z);
@@ -362,8 +386,6 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 	}
 }
 	
-
-
 void PerspectiveCamera::render(Buffer buffer, Sphere sphere) {
 
 	float widthPixel = 2.0f / buffer.getWidth();

@@ -39,7 +39,7 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere* sphere1 = new Sphere(0.5f, 1.0f, 1.0f, 3.0f);
+    Sphere* sphere1 = new Sphere(0.5f, 0.2f, 0.5f, 3.0f);
     Sphere* sphere2 = new Sphere(1.0f, -1.0f, -3.0f, 5.0f);
     Sphere* sphere3 = new Sphere(0.3f, 0.0f, 0.0f, 5.0f);
 
@@ -57,6 +57,7 @@ void FGK() {
     Material sphereMat2 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
     sphereMat2.matType = REFLECTIVE;
     Material sphereMat3 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
+    sphereMat3.matType = REFLECTIVE;
     Material pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
     Material pfMat = Material(vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), 1.0f);
     Material phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
@@ -86,10 +87,6 @@ void FGK() {
     p4->material = pvMat;
     p5->material = pvMat;
 
-    Triangle triangle = Triangle(vec3f(0.0f, 1.0f, 1.0f), vec3f(1.0f, 0.0f, 1.0f), vec3f(-1.0f, 0.0f, 1.0f));
-
-    Mesh mesh;
-
     Scene scene;
 
     scene.elements.push_back(sphere1);
@@ -108,18 +105,6 @@ void FGK() {
 
     scene.pointLights.push_back(pLight);
 
-    orthoCamera.aa = false;
-
-    //orthoCamera.render(buffer, sphere1);
-    //orthoCamera.render(buffer, sphere2);
-    //orthoCamera.render(buffer, triangle);
-    //orthoCamera.render(buffer, mesh);
-    //orthoCamera.render(buffer, scene);
-
-    //pCam.render(buffer, triangle);
-    //pCam.render(buffer, sphere3);
-    //pCam.render(buffer, sphere4);
-    //pCam.render(buffer, mesh);
     pCam.render(buffer, scene);
 
     writer.write(TGA, width, height, buffer.color);
