@@ -39,8 +39,9 @@ void FGK() {
     OrthoCamera orthoCamera = OrthoCamera();
     PerspectiveCamera pCam = PerspectiveCamera();
 
-    Sphere* sphere1 = new Sphere(0.7f, 2.0f, -2.0f, 5.0f);
+    Sphere* sphere1 = new Sphere(0.5f, 1.0f, 1.0f, 3.0f);
     Sphere* sphere2 = new Sphere(1.0f, -1.0f, -3.0f, 5.0f);
+    Sphere* sphere3 = new Sphere(0.3f, 0.0f, 0.0f, 5.0f);
 
     Plane* p1 = new Plane(vec3f(0.0f, 0.0f, -1.0f), vec3f(0.0f, 0.0f, 7.0f));
     Plane* p6 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, -7.0f));
@@ -55,6 +56,7 @@ void FGK() {
     sphereMat.matType = REFRACTIVE;
     Material sphereMat2 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
     sphereMat2.matType = REFLECTIVE;
+    Material sphereMat3 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
     Material pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
     Material pfMat = Material(vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), 1.0f);
     Material phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
@@ -67,6 +69,8 @@ void FGK() {
 
     sphere2->color = 0xff9812a6;
     sphere2->material = sphereMat2;
+
+    sphere3->material = sphereMat3;
 
     p1->color = 0xff000080;
     p1->material = pbMat;
@@ -90,6 +94,7 @@ void FGK() {
 
     scene.elements.push_back(sphere1);
     scene.elements.push_back(sphere2);
+    scene.elements.push_back(sphere3);
     scene.elements.push_back(p1);
     scene.elements.push_back(p2);
     scene.elements.push_back(p3);
@@ -242,7 +247,7 @@ void MiAGK() {
 void test() {
 
     Sphere* sphere1 = new Sphere(0.7f, 0.0f, 0.0f, 5.0f);
-    Ray ray = Ray(vec3f(0, 0, 6.0f), vec3f(0, 0, -1.0f));
+    Ray ray = Ray(vec3f(0, 0, 4.3f), vec3f(0, 0, 1.0f));
     IntersectionResult h = sphere1->hit(ray,false);
     h.intersectionPoint1.write();
     h.intersectionPoint2.write();

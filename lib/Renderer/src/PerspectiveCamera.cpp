@@ -23,8 +23,155 @@ PerspectiveCamera::PerspectiveCamera(vec3f position, vec3f target) {
 	up = vec3f(0, 1, 0);
 }
 
-vec3f PerspectiveCamera::calculatePhong(PointLight& currentLight, float& distanceFromLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx) {
+std::pair<vec3f, float> PerspectiveCamera::reflectRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx) {
+	//CREATE REFLECTED RAY
+	vec3f L1 = ray.getDirection();
+	L1 = -L1;
+	L1.normalize();
+
+	vec3f N1; //TODO: remove dynamic_cast
+	if (dynamic_cast<Sphere*>(scene.elements[elementIdx])) {
+		N1 = intersection.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[elementIdx])->getCenter();
+		//N1 = -N1;
+	}
+	else {
+		N1 = dynamic_cast<Plane*>(scene.elements[elementIdx])->getNormal();
+	}
+	N1.normalize();
+
+	vec3f R1 = (N1 * N1.dot(L1) * 2.0f) - L1;
+	R1.normalize();
+
+	Ray reflectedRay = Ray(intersection.intersectionPoint1, R1);
+
+	IntersectionResult secondIntersection;
+	float minDistance = INFINITY;
+	int reflectedObjIdx = 0;
+
+	for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
+
+		//OMIT REFLECTIVE OBJECT
+		if (recurrentObjNr != elementIdx) {
+
+			//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
+			IntersectionResult tmp;
+			tmp = scene.elements[recurrentObjNr]->hit(reflectedRay, false);
+
+			if (tmp.type == IntersectionType::HIT) {
+				float distance = (tmp.intersectionPoint1 - reflectedRay.getOrigin()).length();
+
+				if (distance < minDistance) {
+					reflectedObjIdx = recurrentObjNr;
+					secondIntersection = tmp;
+					minDistance = distance;
+				}
+			}
+		}
+	}
+	
+	if (scene.elements[reflectedObjIdx]->material.matType == MaterialType::REFRACTIVE) {
+		return refractRay(reflectedRay, scene, secondIntersection, reflectedObjIdx);
+	}
+	return std::pair<vec3f, int>(secondIntersection.intersectionPoint1, reflectedObjIdx);
+}
+
+std::pair<vec3f, float> PerspectiveCamera::refractRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx) {
+	//CREATE REFRACTED RAY
+	float refractionIndex = scene.elements[elementIdx]->material.IoR;
+
+	//float n = refractionIndex / AIRIOR;
+	float n = AIRIOR / refractionIndex;
+
+	vec3f L1 = ray.getDirection();
+	//L1 = -L1;
+	L1.normalize();
+
+	vec3f N1; //TODO: remove dynamic_cast
+	if (dynamic_cast<Sphere*>(scene.elements[elementIdx])) {
+		N1 = intersection.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[elementIdx])->getCenter();
+	}
+	else {
+		N1 = dynamic_cast<Plane*>(scene.elements[elementIdx])->getNormal();
+	}
+	N1.normalize();
+
+	float cosI = N1.dot(L1);
+
+	float cosT2 = 1.0f - n * n * (1.0f - (cosI * cosI));
+
+	if (cosT2 < 0) { //If cosT2 < 0, total internal reflection occured so no refraction
+		throw std::logic_error("Total internal reflection");
+	}
+
+	vec3f refractedRay1Direction = (L1 * n) + (N1 * (n * cosI - sqrtf(cosT2)));
+	refractedRay1Direction.normalize();
+
+	Ray refractedRay1 = Ray(intersection.intersectionPoint1, refractedRay1Direction);
+
+	IntersectionResult second = scene.elements[elementIdx]->hit(refractedRay1, false);
+
+	if (second.intersections < 1) {
+		throw std::logic_error("Total internal reflection");
+	}
+
+	//SECOND REFRACTION
+	/*
+	n = refractionIndex / AIRIOR;
+
+	L1 = refractedRay1.getDirection();
+	L1.normalize();
+
+	if (dynamic_cast<Sphere*>(scene.elements[closestIdx])) {
+		N1 = second.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[closestIdx])->getCenter();
+		N1 = -N1;
+	}
+	N1.normalize();
+
+	cosI = N1.dot(L1);
+
+	cosT2 = 1.0f - n * n * (1.0f - (cosI * cosI));
+
+	if (cosT2 < 0) { //If cosT2 < 0, total internal reflection occured so no refraction
+		throw std::logic_error("Total internal reflection");
+	}
+
+	vec3f refractedRay2Direction = (L1 * n) + (N1 * (n * cosI - sqrtf(cosT2)));
+	refractedRay2Direction.normalize();
+
+	Ray refractedRay2 = Ray(second.intersectionPoint1, refractedRay2Direction);
+	*/
+
+	IntersectionResult secondIntersection;
+	float minDistance = INFINITY;
+	int refractedObjIdx = 0;
+
+	for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
+
+		//OMIT REFRACTIVE OBJECT
+		if (recurrentObjNr != elementIdx) {
+
+			//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
+			IntersectionResult tmp;
+			tmp = scene.elements[recurrentObjNr]->hit(refractedRay1, false);
+
+			if (tmp.type == IntersectionType::HIT) {
+				float distance = (tmp.intersectionPoint1 - refractedRay1.getOrigin()).length();
+
+				if (distance < minDistance) {
+					refractedObjIdx = recurrentObjNr;
+					secondIntersection = tmp;
+					minDistance = distance;
+				}
+			}
+		}
+	}
+	return std::pair<vec3f, float>(secondIntersection.intersectionPoint1, refractedObjIdx);
+}
+
+vec3f PerspectiveCamera::calculatePhong(PointLight& currentLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx) {
 	//LIGHTS
+
+	float distanceFromLight = (lightRay.getOrigin() - currentLight.position).length();
 	float attenuation = 1 / (currentLight.constAtten *
 		(currentLight.linearAtten * (distanceFromLight)) *
 		(currentLight.quadAtten * powf(distanceFromLight, 2.0f)));
@@ -150,6 +297,13 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 							if (obstructionDistance < distance) {
 								isObstructed = true;
+								if (scene.elements[obstructionNr]->material.matType == MaterialType::REFRACTIVE) {
+									ambient = scene.elements[closestIdx]->material.ambient;
+									ambient = vec3f(changeValue(ambient.x, 0, 1.0f, 0, 255.0f), 
+										changeValue(ambient.y, 0, 1.0f, 0, 255.0f), 
+										changeValue(ambient.z, 0, 1.0f, 0, 255.0f));
+									ambient = clampRGB(ambient);
+								}
 								break;
 							}
 
@@ -163,9 +317,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 					case MaterialType::MAT:
 					{
-						//LIGHTS
-
-						vec3f color = calculatePhong(currentLight, distance, ray, lightRay, ambient, scene, closestIdx);
+						vec3f color = calculatePhong(currentLight, ray, lightRay, ambient, scene, closestIdx);
 						
 						buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
 
@@ -174,58 +326,12 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 					case MaterialType::REFLECTIVE:
 					{
-						//CREATE REFLECTED RAY
-						vec3f L1 = ray.getDirection();
-						L1 = -L1;
-						L1.normalize();
+						std::pair<vec3f, float> reflectedRayInfo = reflectRay(ray, scene, intersetion, closestIdx);
 
-						vec3f N1; //TODO: remove dynamic_cast
-						if (dynamic_cast<Sphere*>(scene.elements[closestIdx])) {
-							N1 = intersetion.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[closestIdx])->getCenter();
-							//N1 = -N1;
-						}
-						else {
-							N1 = dynamic_cast<Plane*>(scene.elements[closestIdx])->getNormal();
-						}
-						N1.normalize();
-
-						vec3f R1 = (N1 * N1.dot(L1) * 2.0f) - L1;
-						R1.normalize();
-
-						Ray reflectedRay = Ray(intersetion.intersectionPoint1, R1);
-
-						IntersectionResult secondIntersection;
-						float minDistance = INFINITY;
-						int reflectedObjIdx = 0;
-
-						for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
-
-							//OMIT REFLECTIVE OBJECT
-							if (recurrentObjNr != closestIdx) {
-
-								//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
-								IntersectionResult tmp;
-								tmp = scene.elements[recurrentObjNr]->hit(reflectedRay, false);
-
-								if (tmp.type == IntersectionType::HIT) {
-									float distance = (tmp.intersectionPoint1 - reflectedRay.getOrigin()).length();
-
-									if (distance < minDistance) {
-										reflectedObjIdx = recurrentObjNr;
-										secondIntersection = tmp;
-										minDistance = distance;
-									}
-								}
-							}
-						}
-
-						//CALCULATE REFLECTED PHONG
-						Ray secondRay = Ray(secondIntersection.intersectionPoint1,
+						Ray secondRay = Ray(reflectedRayInfo.first,
 							currentLight.position.x, currentLight.position.y, currentLight.position.z);
 
-						distance = (secondRay.getOrigin() - currentLight.position).length();
-
-						vec3f color = calculatePhong(currentLight, distance, ray, secondRay, ambient, scene, reflectedObjIdx);
+						vec3f color = calculatePhong(currentLight, ray, secondRay, ambient, scene, reflectedRayInfo.second);
 						
 						buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
 
@@ -234,71 +340,12 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 					case MaterialType::REFRACTIVE:
 					{
-						//CREATE REFRACTED RAY
-						float refractionIndex = scene.elements[closestIdx]->material.IoR;
-
-						//float n = refractionIndex / AIRIOR;
-						float n = AIRIOR / refractionIndex;
-
-						vec3f L1 = ray.getDirection();
-						//L1 = -L1;
-						L1.normalize();
-
-						vec3f N1; //TODO: remove dynamic_cast
-						if (dynamic_cast<Sphere*>(scene.elements[closestIdx])) {
-							N1 = intersetion.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[closestIdx])->getCenter();
-						}
-						else {
-							N1 = dynamic_cast<Plane*>(scene.elements[closestIdx])->getNormal();
-						}
-						N1.normalize();
-
-						float cosI = N1.dot(L1);
-
-						float cosT2 = 1.0f - n * n * (1.0f - (cosI * cosI));
-
-						if (cosT2 < 0) { //If cosT2 < 0, total internal reflection occured so no refraction
-							throw std::logic_error("Total internal reflection");
-						}
-
-						vec3f refractedRay1Direction = (L1 * n) + (N1 * (n * cosI - sqrtf(cosT2)));
-						//refractedRay1Direction = ((L1 - N1 * (L1.dot(N1)) * n) - (N1 * (sqrtf(cosT2))));
-						refractedRay1Direction.normalize();
-
-						Ray refractedRay1 = Ray(intersetion.intersectionPoint1, refractedRay1Direction);
-
-						IntersectionResult secondIntersection;
-						float minDistance = INFINITY;
-						int refractedObjIdx = 0;
-
-						for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
-
-							//OMIT REFRACTIVE OBJECT
-							if (recurrentObjNr != closestIdx) {
-
-								//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
-								IntersectionResult tmp;
-								tmp = scene.elements[recurrentObjNr]->hit(refractedRay1, false);
-
-								if (tmp.type == IntersectionType::HIT) {
-									float distance = (tmp.intersectionPoint1 - refractedRay1.getOrigin()).length();
-
-									if (distance < minDistance) {
-										refractedObjIdx = recurrentObjNr;
-										secondIntersection = tmp;
-										minDistance = distance;
-									}
-								}
-							}
-						}
-
-						//CALCULATE REFRACTED PHONG
-						Ray secondRay = Ray(secondIntersection.intersectionPoint1,
+						std::pair<vec3f, float> refractedRayInfo = refractRay(ray, scene, intersetion, closestIdx);
+						
+						Ray secondRay = Ray(refractedRayInfo.first,
 							currentLight.position.x, currentLight.position.y, currentLight.position.z);
 
-						distance = (secondRay.getOrigin() - currentLight.position).length();
-
-						vec3f color = calculatePhong(currentLight, distance, ray, secondRay, ambient, scene, refractedObjIdx);
+						vec3f color = calculatePhong(currentLight, ray, secondRay, ambient, scene, refractedRayInfo.second);
 
 						buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
 
@@ -308,6 +355,7 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 				}
 				else {
 					buffer.color[buffer.getWidth() * j + i] = hexFromRgb(ambient);
+					ambient = scene.elements[closestIdx]->material.ambient * 0.1f;
 				}
 			}
 		}

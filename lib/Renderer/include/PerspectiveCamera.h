@@ -26,7 +26,10 @@ public:
 	PerspectiveCamera(vec3f position, vec3f target);
 	~PerspectiveCamera() {};
 
-	vec3f calculatePhong(PointLight & currentLight, float& distanceFromLight, Ray & ray, Ray & lightRay, vec3f & ambient, Scene & scene, int objIdx);
+	vec3f calculatePhong(PointLight & currentLight, Ray & ray, Ray & lightRay, vec3f & ambient, Scene & scene, int objIdx);
+
+	std::pair<vec3f, float> reflectRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx);
+	std::pair<vec3f, float> refractRay(Ray& ray, Scene& scene, IntersectionResult& intersection, int& elementIdx);
 
 	void render(Buffer buffer, Scene scene);
 	void render(Buffer buffer, Sphere sphere);
