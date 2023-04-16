@@ -34,10 +34,10 @@ vec3f PerspectiveCamera::calculatePhong(PointLight& currentLight, float& distanc
 	lightColor = clampRGB(lightColor);
 
 	//PHONG							
-
 		//DIFFUSE
 	vec3f L = lightRay.getDirection();
 	L.normalize();
+
 	vec3f N; //TODO: remove dynamic_cast
 	if (dynamic_cast<Sphere*>(scene.elements[objIdx])) {
 		N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[objIdx])->getCenter();
@@ -45,19 +45,20 @@ vec3f PerspectiveCamera::calculatePhong(PointLight& currentLight, float& distanc
 	else {
 		N = dynamic_cast<Plane*>(scene.elements[objIdx])->getNormal();
 	}
+	N.normalize();
 
 	vec3f diffuse = scene.elements[objIdx]->material.diffuse * (L.dot(N));
 	diffuse = clampRGB(diffuse);
 
 	//SPECULAR
-	vec3f R = L - (N * N.dot(L) * 2.0f);
+	vec3f R = (N * N.dot(L) * 2.0f) - L;
 	vec3f V = ray.getOrigin() - lightRay.getOrigin();
 	V.normalize();
 
 	float specularStrength;
 	float ss = R.dot(V);
 
-	if (-ss > 0) {
+	if (ss > 0) {
 		specularStrength = powf(ss, scene.elements[objIdx]->material.shininess);
 	}
 	else {
@@ -99,208 +100,221 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 			Ray ray = Ray(position, (u * centerX + v * centerY + w));
 			vec3f ambient;
 
+			int closestIdx = 0;
+			float distance = INFINITY;
+			IntersectionResult intersetion;
+
 			for (int k = 0; k < scene.elements.size(); k++) {
 
-				IntersectionResult intersetion = scene.elements[k]->hit(ray, false);
+				IntersectionResult tmpIntersetion = scene.elements[k]->hit(ray, false);
 
-				if (intersetion.type == IntersectionType::HIT &&
-					intersetion.intersectionPoint1.z < buffer.depth[buffer.getWidth() * j + i]) {
+				if (tmpIntersetion.type == IntersectionType::HIT) {
 
-					ambient = scene.elements[k]->material.ambient * 0.1f;
+					float tmpDistance = (tmpIntersetion.intersectionPoint1 - position).length();
+					if (tmpDistance < distance) {
+						closestIdx = k;
+						intersetion = tmpIntersetion;
+						distance = tmpDistance;
+					}
 
-					//LIGHTING
-					for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
+				}
+			}
 
-						PointLight& currentLight = *scene.pointLights[lightNr];
+			ambient = scene.elements[closestIdx]->material.ambient * 0.1f;
 
-						Ray lightRay = Ray(intersetion.intersectionPoint1, 
-							currentLight.position.x, currentLight.position.y, currentLight.position.z);
+			//LIGHTING
+			for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
 
-						float distance = (lightRay.getOrigin() - currentLight.position).length();
+				PointLight& currentLight = *scene.pointLights[lightNr];
 
-						//SHADOWS
-						bool isObstructed = false;
+				Ray lightRay = Ray(intersetion.intersectionPoint1, 
+					currentLight.position.x, currentLight.position.y, currentLight.position.z);
 
-						IntersectionResult obstruction;
+				float distance = (currentLight.position - lightRay.getOrigin()).length();
 
-						for (int obstructionNr = 0; obstructionNr < scene.elements.size(); obstructionNr++) {
+				//SHADOWS
+				bool isObstructed = false;
 
-							if (obstructionNr != k) {
+				IntersectionResult obstruction;
 
-								//IntersectionResult obstruction = scene.elements[obstructionNr]->hit(lightRay, true); //TODO: ???
-								obstruction = scene.elements[obstructionNr]->hit(lightRay, false);
+				for (int obstructionNr = 0; obstructionNr < scene.elements.size(); obstructionNr++) {
 
-								if (obstruction.type == IntersectionType::HIT) {	
+					if (obstructionNr != closestIdx) {
 
-									float obstructionDistance = (lightRay.getOrigin() - obstruction.intersectionPoint1).length();
+						//IntersectionResult obstruction = scene.elements[obstructionNr]->hit(lightRay, true); //TODO: ???
+						obstruction = scene.elements[obstructionNr]->hit(lightRay, false);
 
-									if (obstructionDistance < distance) {
-										isObstructed = true;
-										break;
-									}
+						if (obstruction.type == IntersectionType::HIT) {	
 
-								}
-							}
-						}
+							float obstructionDistance = (lightRay.getOrigin() - obstruction.intersectionPoint1).length();
 
-						if (!isObstructed) {
-
-							switch (scene.elements[k]->material.matType) {
-
-							case MaterialType::MAT:
-							{
-								//LIGHTS
-
-								vec3f color = calculatePhong(currentLight, distance, ray, lightRay, ambient, scene, k);
-								
-								buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
-
+							if (obstructionDistance < distance) {
+								isObstructed = true;
 								break;
 							}
 
-							case MaterialType::REFLECTIVE:
-							{
-								//CREATE REFLECTED RAY
-								vec3f L1 = ray.getDirection();
-								L1.normalize();
+						}
+					}
+				}
 
-								vec3f N1; //TODO: remove dynamic_cast
-								if (dynamic_cast<Sphere*>(scene.elements[k])) {
-									N1 = ray.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
-								}
-								else {
-									N1 = dynamic_cast<Plane*>(scene.elements[k])->getNormal();
-								}
+				if (!isObstructed) {
 
-								vec3f R1 = L1 - (N1 * N1.dot(L1) * 2.0f);
-								R1.normalize();
+					switch (scene.elements[closestIdx]->material.matType) {
 
-								Ray reflectedRay = Ray(intersetion.intersectionPoint1, R1);
+					case MaterialType::MAT:
+					{
+						//LIGHTS
 
-								IntersectionResult secondIntersection;
-								float minDistance = INFINITY;
-								int reflectedObjIdx = 0;
+						vec3f color = calculatePhong(currentLight, distance, ray, lightRay, ambient, scene, closestIdx);
+						
+						buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
 
-								for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
+						break;
+					}
 
-									//OMIT REFLECTIVE OBJECT
-									if (recurrentObjNr != k) {
+					case MaterialType::REFLECTIVE:
+					{
+						//CREATE REFLECTED RAY
+						vec3f L1 = ray.getDirection();
+						L1 = -L1;
+						L1.normalize();
 
-										//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
-										IntersectionResult tmp;
-										tmp = scene.elements[recurrentObjNr]->hit(reflectedRay, false);
-
-										if (tmp.type == IntersectionType::HIT) {
-											float distance = (tmp.intersectionPoint1 - reflectedRay.getOrigin()).length();
-
-											if (distance < minDistance) {
-												reflectedObjIdx = recurrentObjNr;
-												secondIntersection = tmp;
-												minDistance = distance;
-											}
-										}
-									}
-								}
-
-								//CALCULATE REFLECTED PHONG
-								Ray secondRay = Ray(secondIntersection.intersectionPoint1,
-									currentLight.position.x, currentLight.position.y, currentLight.position.z);
-
-								distance = (secondRay.getOrigin() - currentLight.position).length();
-
-								vec3f color = calculatePhong(currentLight, distance, ray, secondRay, ambient, scene, reflectedObjIdx);
-								
-								buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
-
-								break; 
-							}
-
-							case MaterialType::REFRACTIVE:
-							{
-								//CREATE REFRACTED RAY
-								float refractionIndex = scene.elements[k]->material.IoR;
-
-								//float n = refractionIndex / AIRIOR;
-								float n = AIRIOR / refractionIndex;
-
-								vec3f L1 = ray.getDirection();
-								L1.normalize();
-
-								vec3f N1; //TODO: remove dynamic_cast
-								if (dynamic_cast<Sphere*>(scene.elements[k])) {
-									N1 = ray.getOrigin() - dynamic_cast<Sphere*>(scene.elements[k])->getCenter();
-								}
-								else {
-									N1 = dynamic_cast<Plane*>(scene.elements[k])->getNormal();
-								}
-								/*
-								if (reverseMediums)
-									n *= 1.0f;
-									*/
-
-								float cosI = N1.dot(L1);
-
-								float cosT2 = 1.0f - n * n * (1.0f - cosI * cosI);
-
-								if (cosT2 < 0) { //If cosT2 < 0, total internal reflection occured so no refraction
-									throw std::logic_error("Total internal reflection");
-								}
-
-								vec3f refractedRay1Direction = (L1 * n) + (N1 * (n * cosI - sqrtf(cosT2)));
-								refractedRay1Direction.normalize();
-
-								Ray refractedRay1 = Ray(intersetion.intersectionPoint1, refractedRay1Direction);
-
-								IntersectionResult secondIntersection;
-								float minDistance = INFINITY;
-								int refractedObjIdx = 0;
-
-								for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
-
-									//OMIT REFRACTIVE OBJECT
-									if (recurrentObjNr != k) {
-
-										//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
-										IntersectionResult tmp;
-										tmp = scene.elements[recurrentObjNr]->hit(refractedRay1, false);
-
-										if (tmp.type == IntersectionType::HIT) {
-											float distance = (tmp.intersectionPoint1 - refractedRay1.getOrigin()).length();
-
-											if (distance < minDistance) {
-												refractedObjIdx = recurrentObjNr;
-												secondIntersection = tmp;
-												minDistance = distance;
-											}
-										}
-									}
-								}
-
-								//CALCULATE REFRACTED PHONG
-								Ray secondRay = Ray(secondIntersection.intersectionPoint1,
-									currentLight.position.x, currentLight.position.y, currentLight.position.z);
-
-								distance = (secondRay.getOrigin() - currentLight.position).length();
-
-								vec3f color = calculatePhong(currentLight, distance, ray, secondRay, ambient, scene, refractedObjIdx);
-
-								buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
-
-								break; 
-							}
-							}
+						vec3f N1; //TODO: remove dynamic_cast
+						if (dynamic_cast<Sphere*>(scene.elements[closestIdx])) {
+							N1 = intersetion.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[closestIdx])->getCenter();
+							//N1 = -N1;
 						}
 						else {
-							buffer.color[buffer.getWidth() * j + i] = hexFromRgb(ambient);
+							N1 = dynamic_cast<Plane*>(scene.elements[closestIdx])->getNormal();
 						}
+						N1.normalize();
+
+						vec3f R1 = (N1 * N1.dot(L1) * 2.0f) - L1;
+						R1.normalize();
+
+						Ray reflectedRay = Ray(intersetion.intersectionPoint1, R1);
+
+						IntersectionResult secondIntersection;
+						float minDistance = INFINITY;
+						int reflectedObjIdx = 0;
+
+						for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
+
+							//OMIT REFLECTIVE OBJECT
+							if (recurrentObjNr != closestIdx) {
+
+								//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
+								IntersectionResult tmp;
+								tmp = scene.elements[recurrentObjNr]->hit(reflectedRay, false);
+
+								if (tmp.type == IntersectionType::HIT) {
+									float distance = (tmp.intersectionPoint1 - reflectedRay.getOrigin()).length();
+
+									if (distance < minDistance) {
+										reflectedObjIdx = recurrentObjNr;
+										secondIntersection = tmp;
+										minDistance = distance;
+									}
+								}
+							}
+						}
+
+						//CALCULATE REFLECTED PHONG
+						Ray secondRay = Ray(secondIntersection.intersectionPoint1,
+							currentLight.position.x, currentLight.position.y, currentLight.position.z);
+
+						distance = (secondRay.getOrigin() - currentLight.position).length();
+
+						vec3f color = calculatePhong(currentLight, distance, ray, secondRay, ambient, scene, reflectedObjIdx);
 						
-						buffer.depth[buffer.getWidth() * j + i] = intersetion.intersectionPoint1.z;
+						buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
+
+						break; 
 					}
+
+					case MaterialType::REFRACTIVE:
+					{
+						//CREATE REFRACTED RAY
+						float refractionIndex = scene.elements[closestIdx]->material.IoR;
+
+						//float n = refractionIndex / AIRIOR;
+						float n = AIRIOR / refractionIndex;
+
+						vec3f L1 = ray.getDirection();
+						//L1 = -L1;
+						L1.normalize();
+
+						vec3f N1; //TODO: remove dynamic_cast
+						if (dynamic_cast<Sphere*>(scene.elements[closestIdx])) {
+							N1 = intersetion.intersectionPoint1 - dynamic_cast<Sphere*>(scene.elements[closestIdx])->getCenter();
+						}
+						else {
+							N1 = dynamic_cast<Plane*>(scene.elements[closestIdx])->getNormal();
+						}
+						N1.normalize();
+
+						float cosI = N1.dot(L1);
+
+						float cosT2 = 1.0f - n * n * (1.0f - (cosI * cosI));
+
+						if (cosT2 < 0) { //If cosT2 < 0, total internal reflection occured so no refraction
+							throw std::logic_error("Total internal reflection");
+						}
+
+						vec3f refractedRay1Direction = (L1 * n) + (N1 * (n * cosI - sqrtf(cosT2)));
+						//refractedRay1Direction = ((L1 - N1 * (L1.dot(N1)) * n) - (N1 * (sqrtf(cosT2))));
+						refractedRay1Direction.normalize();
+
+						Ray refractedRay1 = Ray(intersetion.intersectionPoint1, refractedRay1Direction);
+
+						IntersectionResult secondIntersection;
+						float minDistance = INFINITY;
+						int refractedObjIdx = 0;
+
+						for (int recurrentObjNr = 0; recurrentObjNr < scene.elements.size(); recurrentObjNr++) {
+
+							//OMIT REFRACTIVE OBJECT
+							if (recurrentObjNr != closestIdx) {
+
+								//CHECK FOR CLOSEST OBJECT IN RAY TRAJECTORY
+								IntersectionResult tmp;
+								tmp = scene.elements[recurrentObjNr]->hit(refractedRay1, false);
+
+								if (tmp.type == IntersectionType::HIT) {
+									float distance = (tmp.intersectionPoint1 - refractedRay1.getOrigin()).length();
+
+									if (distance < minDistance) {
+										refractedObjIdx = recurrentObjNr;
+										secondIntersection = tmp;
+										minDistance = distance;
+									}
+								}
+							}
+						}
+
+						//CALCULATE REFRACTED PHONG
+						Ray secondRay = Ray(secondIntersection.intersectionPoint1,
+							currentLight.position.x, currentLight.position.y, currentLight.position.z);
+
+						distance = (secondRay.getOrigin() - currentLight.position).length();
+
+						vec3f color = calculatePhong(currentLight, distance, ray, secondRay, ambient, scene, refractedObjIdx);
+
+						buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
+
+						break; 
+					}
+					}
+				}
+				else {
+					buffer.color[buffer.getWidth() * j + i] = hexFromRgb(ambient);
 				}
 			}
 		}
 	}
 }
+	
+
 
 void PerspectiveCamera::render(Buffer buffer, Sphere sphere) {
 

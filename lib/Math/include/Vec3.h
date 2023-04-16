@@ -61,6 +61,10 @@ public:
 	Vec3<float> reflect(Vec3<float> normal);
 
 	Vec3<float> max(Vec3<float> v);
+
+	void write() {
+		printf("%f %f %f\n", x, y, z);
+	}
 };
 
 typedef Vec3<float> vec3f;

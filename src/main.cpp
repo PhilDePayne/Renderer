@@ -40,7 +40,7 @@ void FGK() {
     PerspectiveCamera pCam = PerspectiveCamera();
 
     Sphere* sphere1 = new Sphere(0.7f, 2.0f, -2.0f, 5.0f);
-    Sphere* sphere2 = new Sphere(0.7f, 2.0f, 1.0f, 4.0f);
+    Sphere* sphere2 = new Sphere(1.0f, -1.0f, -3.0f, 5.0f);
 
     Plane* p1 = new Plane(vec3f(0.0f, 0.0f, -1.0f), vec3f(0.0f, 0.0f, 7.0f));
     Plane* p6 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, -7.0f));
@@ -52,17 +52,21 @@ void FGK() {
     
     Material sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
     sphereMat.IoR = 1.52f;
-    //sphereMat.matType = REFLECTIVE;
     sphereMat.matType = REFRACTIVE;
+    Material sphereMat2 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
+    sphereMat2.matType = REFLECTIVE;
     Material pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
     Material pfMat = Material(vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), 1.0f);
     Material phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
     Material pvMat = Material(vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), vec3f(0.5f, 0.0f, 0.0f), 1.0f);
 
+    Material pTestMat = Material(vec3f(0.5f, 0.5f, 0.5f), vec3f(0.5f, 0.5f, 0.5f), vec3f(0.5f, 0.5f, 0.5f), 1.0f);
+
     sphere1->color = 0xff12a698;
     sphere1->material = sphereMat;
 
     sphere2->color = 0xff9812a6;
+    sphere2->material = sphereMat2;
 
     p1->color = 0xff000080;
     p1->material = pbMat;
@@ -70,7 +74,7 @@ void FGK() {
 
     p2->color = 0xff008000;
     p3->color = 0xff008000;
-    p2->material = phMat;
+    p2->material = pTestMat;
     p3->material = phMat;
 
     p4->color = 0xff800000;
@@ -85,7 +89,7 @@ void FGK() {
     Scene scene;
 
     scene.elements.push_back(sphere1);
-    //scene.elements.push_back(sphere2);
+    scene.elements.push_back(sphere2);
     scene.elements.push_back(p1);
     scene.elements.push_back(p2);
     scene.elements.push_back(p3);
@@ -94,7 +98,7 @@ void FGK() {
     scene.elements.push_back(p6);
 
     PointLight* pLight = new PointLight();
-    pLight->position = vec3f(0.0f, 0.0f, 0.0f);
+    pLight->position = vec3f(2.0f, 1.0f, 3.0f);
     pLight->intensity = LightIntensity(255.0f, 255.0f, 255.0f);
 
     scene.pointLights.push_back(pLight);
@@ -237,14 +241,11 @@ void MiAGK() {
 
 void test() {
 
-    Sphere* sphere1 = new Sphere(0.7f, 2.0f, 1.0f, 5.0f);
-    Plane* p1 = new Plane(vec3f(0.0f, 0.0f, 1.0f), vec3f(0.0f, 0.0f, 7.0f));
-    Ray ray = Ray(sphere1->getCenter(), 0, 0, -1.0f);
-
-    IntersectionResult hit = p1->hit(ray, false);
-
-    if (hit.type == IntersectionType::HIT) printf("HIT");
-
+    Sphere* sphere1 = new Sphere(0.7f, 0.0f, 0.0f, 5.0f);
+    Ray ray = Ray(vec3f(0, 0, 6.0f), vec3f(0, 0, -1.0f));
+    IntersectionResult h = sphere1->hit(ray,false);
+    h.intersectionPoint1.write();
+    h.intersectionPoint2.write();
 }
 
 int main()
