@@ -21,6 +21,55 @@ PerspectiveCamera::PerspectiveCamera(vec3f position, vec3f target) {
 	up = vec3f(0, 1, 0);
 }
 
+vec3f calculatePhong(PointLight& currentLight, float& distanceFromLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx) {
+	//LIGHTS
+	float attenuation = 1 / (currentLight.constAtten *
+		(currentLight.linearAtten * (distanceFromLight)) *
+		(currentLight.quadAtten * powf(distanceFromLight, 2.0f)));
+
+	vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
+
+	lightColor = clampRGB(lightColor);
+
+	//PHONG							
+
+		//DIFFUSE
+	vec3f L = lightRay.getDirection();
+	L.normalize();
+	vec3f N; //TODO: remove dynamic_cast
+	if (dynamic_cast<Sphere*>(scene.elements[objIdx])) {
+		N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[objIdx])->getCenter();
+	}
+	else {
+		N = dynamic_cast<Plane*>(scene.elements[objIdx])->getNormal();
+	}
+
+	vec3f diffuse = scene.elements[objIdx]->material.diffuse * (L.dot(N));
+	diffuse = clampRGB(diffuse);
+
+	//SPECULAR
+	vec3f R = L - (N * N.dot(L) * 2.0f);
+	vec3f V = ray.getDirection();
+
+	float specularStrength;
+	float ss = R.dot(V);
+
+	if (-ss > 0) {
+		specularStrength = powf(ss, scene.elements[objIdx]->material.shininess);
+	}
+	else {
+		specularStrength = 0.0f;
+	}
+
+	vec3f specular = scene.elements[objIdx]->material.specular * specularStrength;
+	specular = clampRGB(specular);
+
+	vec3f finalColor = lightColor * (ambient + diffuse + specular);
+	finalColor = clampRGB(finalColor);
+
+	return finalColor;
+}
+
 void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 	float widthPixel = 2.0f / buffer.getWidth();
@@ -98,6 +147,9 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 							case MaterialType::MAT:
 							{
 								//LIGHTS
+
+								vec3f color = calculatePhong(currentLight, distance, ray, lightRay, ambient, scene, k);
+								/*
 								float attenuation = 1 / (currentLight.constAtten *
 									(currentLight.linearAtten * (distance)) *
 									(currentLight.quadAtten * powf(distance, 2.0f)));
@@ -141,8 +193,10 @@ void PerspectiveCamera::render(Buffer buffer, Scene scene) {
 
 								vec3f finalColor = lightColor * (ambient + diffuse + specular);
 								finalColor = clampRGB(finalColor);
+								*/
 
-								buffer.color[buffer.getWidth() * j + i] = hexFromRgb(finalColor);
+								//color = clampRGB(color);
+								//buffer.color[buffer.getWidth() * j + i] = hexFromRgb(color);
 
 								break;
 							}

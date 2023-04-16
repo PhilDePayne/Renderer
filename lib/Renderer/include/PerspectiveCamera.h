@@ -24,6 +24,8 @@ public:
 	PerspectiveCamera(vec3f position, vec3f target);
 	~PerspectiveCamera() {};
 
+	vec3f calculatePhong(PointLight& currentLight, float& distanceFromLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx);
+
 	void render(Buffer buffer, Scene scene);
 	void render(Buffer buffer, Sphere sphere);
 	void render(Buffer buffer, Triangle triangle);
