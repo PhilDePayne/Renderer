@@ -51,7 +51,9 @@ void FGK() {
 
     
     Material sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
-    sphereMat.matType = REFLECTIVE;
+    sphereMat.IoR = 1.52f;
+    //sphereMat.matType = REFLECTIVE;
+    sphereMat.matType = REFRACTIVE;
     Material pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
     Material pfMat = Material(vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), 1.0f);
     Material phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
@@ -92,7 +94,7 @@ void FGK() {
     scene.elements.push_back(p6);
 
     PointLight* pLight = new PointLight();
-    pLight->position = vec3f(0.0f, 0.0f, -2.0f);
+    pLight->position = vec3f(0.0f, 0.0f, 0.0f);
     pLight->intensity = LightIntensity(255.0f, 255.0f, 255.0f);
 
     scene.pointLights.push_back(pLight);

@@ -6,6 +6,8 @@
 #include "Triangle.h"
 #include "Mesh.h"
 #include "Scene.h"
+#include "MathHelper.h"
+#include "Plane.h"
 
 class PerspectiveCamera
 {
@@ -24,7 +26,7 @@ public:
 	PerspectiveCamera(vec3f position, vec3f target);
 	~PerspectiveCamera() {};
 
-	vec3f calculatePhong(PointLight& currentLight, float& distanceFromLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx);
+	vec3f calculatePhong(PointLight & currentLight, float& distanceFromLight, Ray & ray, Ray & lightRay, vec3f & ambient, Scene & scene, int objIdx);
 
 	void render(Buffer buffer, Scene scene);
 	void render(Buffer buffer, Sphere sphere);
