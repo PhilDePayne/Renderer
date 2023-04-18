@@ -51,13 +51,13 @@ void FGK() {
     Plane* p5 = new Plane(vec3f(-1.0f, 0.0f, 0.0f), vec3f(3.0f, 0.0f, 0.0f));
 
     
-    Material sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
+    Material sphereMat = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 64.0f);
     sphereMat.IoR = 1.52f;
-    sphereMat.matType = REFRACTIVE;
-    Material sphereMat2 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
-    sphereMat2.matType = REFLECTIVE;
-    Material sphereMat3 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 1.0f);
-    sphereMat3.matType = REFLECTIVE;
+    //sphereMat.matType = REFRACTIVE;
+    Material sphereMat2 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 64.0f);
+    //sphereMat2.matType = REFLECTIVE;
+    Material sphereMat3 = Material(vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), vec3f(0.5f, 0.3f, 0.1f), 64.0f);
+    //sphereMat3.matType = REFLECTIVE;
     Material pbMat = Material(vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), vec3f(0.0f, 0.0f, 0.5f), 1.0f);
     Material pfMat = Material(vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), vec3f(0.5f, 0.5f, 0.0f), 1.0f);
     Material phMat = Material(vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), vec3f(0.0f, 0.5f, 0.0f), 1.0f);
