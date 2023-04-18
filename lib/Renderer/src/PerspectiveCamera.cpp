@@ -193,56 +193,102 @@ std::pair<vec3f, float> PerspectiveCamera::refractRay(Ray& ray, Scene& scene, In
 }
 
 vec3f PerspectiveCamera::calculatePhong(PointLight& currentLight, Ray& ray, Ray& lightRay, vec3f& ambient, Scene& scene, int objIdx) {
-	//LIGHTS
 
-	float distanceFromLight = (lightRay.getOrigin() - currentLight.position).length();
-	float attenuation = 1 / (currentLight.constAtten *
-		(currentLight.linearAtten * (distanceFromLight)) *
-		(currentLight.quadAtten * powf(distanceFromLight, 2.0f)));
+	for (int lightNr = 0; lightNr < scene.pointLights.size(); lightNr++) {
 
-	vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
+		PointLight& currentLight = *scene.pointLights[lightNr];
 
-	lightColor = clampRGB(lightColor);
+		float distance = (currentLight.position - lightRay.getOrigin()).length();
 
-	//PHONG							
-		//DIFFUSE
-	vec3f L = lightRay.getDirection();
-	L.normalize();
+		//SHADOWS
+		bool isObstructed = false;
 
-	vec3f N; //TODO: remove dynamic_cast
-	if (dynamic_cast<Sphere*>(scene.elements[objIdx])) {
-		N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[objIdx])->getCenter();
+		IntersectionResult obstruction;
+
+		for (int obstructionNr = 0; obstructionNr < scene.elements.size(); obstructionNr++) {
+
+			if (obstructionNr != objIdx) {
+
+				//IntersectionResult obstruction = scene.elements[obstructionNr]->hit(lightRay, true); //TODO: ???
+				obstruction = scene.elements[obstructionNr]->hit(lightRay, false);
+
+				if (obstruction.type == IntersectionType::HIT) {
+
+					float obstructionDistance = (lightRay.getOrigin() - obstruction.intersectionPoint1).length();
+
+					if (obstructionDistance < distance) {
+						isObstructed = true;
+						if (scene.elements[obstructionNr]->material.matType == MaterialType::REFRACTIVE) {
+							ambient = scene.elements[objIdx]->material.ambient;
+							ambient = vec3f(changeValue(ambient.x, 0, 1.0f, 0, 255.0f),
+								changeValue(ambient.y, 0, 1.0f, 0, 255.0f),
+								changeValue(ambient.z, 0, 1.0f, 0, 255.0f));
+							ambient = clampRGB(ambient);
+						}
+						break;
+					}
+
+				}
+			}
+		}
+
+		if (!isObstructed) {
+			//LIGHTS
+			float distanceFromLight = (lightRay.getOrigin() - currentLight.position).length();
+
+			float attenuation = 1 / (currentLight.constAtten *
+				(currentLight.linearAtten * (distanceFromLight)) *
+				(currentLight.quadAtten * powf(distanceFromLight, 2.0f)));
+
+			vec3f lightColor = (currentLight.intensity * attenuation).gRgb();
+
+			lightColor = clampRGB(lightColor);
+
+			//PHONG							
+				//DIFFUSE
+			vec3f L = lightRay.getDirection();
+			L.normalize();
+
+			vec3f N; //TODO: remove dynamic_cast
+			if (dynamic_cast<Sphere*>(scene.elements[objIdx])) {
+				N = lightRay.getOrigin() - dynamic_cast<Sphere*>(scene.elements[objIdx])->getCenter();
+			}
+			else {
+				N = dynamic_cast<Plane*>(scene.elements[objIdx])->getNormal();
+			}
+			N.normalize();
+
+			vec3f diffuse = scene.elements[objIdx]->material.diffuse * (L.dot(N));
+			diffuse = clampRGB(diffuse);
+
+			//SPECULAR
+			vec3f R = (N * N.dot(L) * 2.0f) - L;
+			vec3f V = ray.getOrigin() - lightRay.getOrigin();
+			V.normalize();
+
+			float specularStrength;
+			float ss = R.dot(V);
+
+			if (ss > 0) {
+				specularStrength = powf(ss, scene.elements[objIdx]->material.shininess);
+			}
+			else {
+				specularStrength = 0.0f;
+			}
+
+			vec3f specular = scene.elements[objIdx]->material.specular * specularStrength;
+			specular = clampRGB(specular);
+
+			vec3f finalColor = lightColor * (ambient + diffuse + specular);
+			finalColor = clampRGB(finalColor);
+
+			return finalColor;
+		}
+
+		else {
+			return ambient;
+		}
 	}
-	else {
-		N = dynamic_cast<Plane*>(scene.elements[objIdx])->getNormal();
-	}
-	N.normalize();
-
-	vec3f diffuse = scene.elements[objIdx]->material.diffuse * (L.dot(N));
-	diffuse = clampRGB(diffuse);
-
-	//SPECULAR
-	vec3f R = (N * N.dot(L) * 2.0f) - L;
-	vec3f V = ray.getOrigin() - lightRay.getOrigin();
-	V.normalize();
-
-	float specularStrength;
-	float ss = R.dot(V);
-
-	if (ss > 0) {
-		specularStrength = powf(ss, scene.elements[objIdx]->material.shininess);
-	}
-	else {
-		specularStrength = 0.0f;
-	}
-
-	vec3f specular = scene.elements[objIdx]->material.specular * specularStrength;
-	specular = clampRGB(specular);
-
-	vec3f finalColor = lightColor * (ambient + diffuse + specular);
-	finalColor = clampRGB(finalColor);
-
-	return finalColor;
 }
 
 void PerspectiveCamera::render(Buffer buffer, Scene scene) {
